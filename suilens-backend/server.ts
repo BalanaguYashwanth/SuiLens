@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { dbOperations } from './controllers/dbOperations';
 import { setupListeners } from './controllers/event-indexer';
+import { dbquery } from './controllers/dbquery';
 
 const app = express();
 app.use(cors());
@@ -32,6 +33,16 @@ app.get('/status', (req, res)=>{
 //       }
 //     });
 
+app.post('/query', (req, res)=>{
+  const {query, module} = req.body;
+  try{
+    const response = dbquery({module, query})
+    return res.status(200).json(response)
+  }catch(error){
+    return res.status(400).json({ error: 'Invalid operation or data' });
+  }
+})
+
 app.post('/db_operations', (req, res) => {
   const { dbName, tableName, data, operation } = req.body;
 
@@ -58,3 +69,5 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+

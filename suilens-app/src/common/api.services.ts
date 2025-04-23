@@ -1,9 +1,5 @@
 import { BACKEND_API } from "./env"
-
-interface CreateEvents {
-    packageId: string
-    module: string
-}
+import { CreateEvents, GetSqlQueryResults } from "./types";
 
 export const createEvents = async (data: CreateEvents) => {
     const response = await fetch(`${BACKEND_API}/record-events`, {
@@ -14,3 +10,11 @@ export const createEvents = async (data: CreateEvents) => {
     return response.json();
   };
   
+export const getSqlQueryResults = async (data: GetSqlQueryResults) => {
+  const response = await fetch(`${BACKEND_API}/query`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}

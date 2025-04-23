@@ -51,7 +51,6 @@ const executeEventJob = async (
       cursor,
       order: 'ascending',
     });
-    console.log('----data--', data)
     await tracker.callback(data, tracker.type, module);
 
     if (nextCursor && data.length > 0) {

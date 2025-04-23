@@ -16,6 +16,7 @@ const Home = () => {
                     packageId,
                     module
                 })
+                localStorage.setItem('module', module)
                 toast.success('Successfully created!');
                 navigate('/dashboard')
             }else{

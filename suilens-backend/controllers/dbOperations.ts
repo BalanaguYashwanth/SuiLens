@@ -22,7 +22,6 @@ export const dbOperations = ({ dbName, operation, data, tableName }: DB_OPERATIO
     } catch(error){
       return undefined
     }
-   
   }
 
   // Handle single upsert
