@@ -1,0 +1,30 @@
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+
+model MessageSent {
+  dbId String @id @unique @default(uuid())
+  sender String
+  text String
+}
+
+model PlatformFeeCut {
+  dbId String @id @unique @default(uuid())
+  recipient String
+  amount String
+}
+
+
+model cursor {
+  id        String @id
+  eventSeq  String
+  txDigest  String
+}
