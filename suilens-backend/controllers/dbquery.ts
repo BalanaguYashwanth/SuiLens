@@ -14,6 +14,6 @@ export const dbquery = ({module, query}: DB_QUERY) => {
     }
     const db = new Database(dbPath);
     
-    const row = db.prepare("select * from RoyaltyEvent").all();
+    const row = db.prepare(query).all();
     return row
 }
