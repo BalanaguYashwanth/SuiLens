@@ -93,8 +93,12 @@ const App: React.FC = () => {
       query, 
       module: localStorage.getItem('module') as string 
     });
+    //TODO - Below remains same, don't need to modify
+    //in this response you will be getting the data, and what you need to do - in backend give this schema and first 3 rows of data to another agent
+    // where it will decide whether it should be shown as bar/pie/line/tabular etc chart
     const rows = dbResponse;
 
+    
     if (rows.length > 0) {
       const cols: Column<RowData>[] = Object.keys(rows[0]).map(key => ({
         Header: key,
@@ -103,6 +107,8 @@ const App: React.FC = () => {
       setColumns(cols);
       setData(rows);
     }
+
+    
   };
 
   const tableInstance = useTable({ columns, data });
@@ -147,6 +153,7 @@ const App: React.FC = () => {
       },
     };
 
+    //todo - extend this graphs to tabular etc
     switch (chartType) {
       case 'bar':
         return <Bar data={chartData} options={commonOptions} />;
