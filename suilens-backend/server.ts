@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { dbOperations } from './controllers/dbOperations';
 import { setupListeners } from './controllers/event-indexer';
-import { dbquery } from './controllers/dbquery';
+import { processQueryPipeline } from './controllers/dbquery';
 
 const app = express();
 app.use(cors());
@@ -33,13 +33,19 @@ app.get('/status', (req, res)=>{
 //       }
 //     });
 
-app.post('/query', (req, res)=>{
+app.post('/query', async (req, res)=>{
   const {query, module} = req.body;
+
+  if (!query || !module) {
+    return res.status(400).json({ error: 'Missing query or module in request body' });
+  }
+
   try{
-    const response = dbquery({module, query})
-    return res.status(200).json(response)
+    const result = await processQueryPipeline({ query, module });
+    return res.status(200).json(result)
   }catch(error){
-    return res.status(400).json({ error: 'Invalid operation or data' });
+    console.error('Error processing query pipeline:', error);
+    return res.status(400).json({ error: 'Failed to process query pipeline' });
   }
 })
 
@@ -69,5 +75,3 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-
