@@ -34,6 +34,11 @@ export const getdata = () => {
     // once data you got then decide which chart it should display
 
     const query = classfieragent(data)
+    if(query){
+        return qurry
+    }else{
+        query = procssstexttoquery()
+    }
     //trigger the data dbquery
 
 
