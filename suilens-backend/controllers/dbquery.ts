@@ -4,7 +4,6 @@ import { callClaudeAI } from '../services/llmService';
 import { chartPrompt } from './prompts/chartPrompt';
 import { convertPrompt } from './prompts/convertPrompt';
 import { classifyPrompt } from './prompts/classifyPrompt';
-import { tableExtractionPrompt } from './prompts/tableExtractionPrompt';
 
 type DB_QUERY = {
     module: string
