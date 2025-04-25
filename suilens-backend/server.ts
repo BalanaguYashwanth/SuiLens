@@ -34,14 +34,14 @@ app.get('/status', (req, res)=>{
 //     });
 
 app.post('/query', async (req, res)=>{
-  const {query, module} = req.body;
+  const {text, module} = req.body;
 
-  if (!query || !module) {
+  if (!text || !module) {
     return res.status(400).json({ error: 'Missing query or module in request body' });
   }
 
   try{
-    const result = await processQueryPipeline({ query, module });
+    const result = await processQueryPipeline({ text, module });
     return res.status(200).json(result)
   }catch(error){
     console.error('Error processing query pipeline:', error);

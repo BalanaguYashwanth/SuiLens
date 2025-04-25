@@ -39,7 +39,6 @@ const App: React.FC = () => {
   const [chartData, setChartData] = useState<any>(null);
   const [availableChartTypes, setAvailableChartTypes] = useState<ChartType[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [availableTables, setAvailableTables] = useState<string[]>([]);
   const [sqlQuery, setSqlQuery] = useState<string | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
 
@@ -101,13 +100,12 @@ const App: React.FC = () => {
 
     try {
       const dbResponse = await getSqlQueryResults({ 
-        query, 
+        text: query, 
         module: localStorage.getItem('module') as string 
       });
 
-      if (dbResponse.message && dbResponse.availableTables) {
+      if (dbResponse.message && dbResponse?.availableTables) {
         setErrorMsg(dbResponse.message);
-        setAvailableTables(dbResponse.availableTables);
         setData([]);
         setColumns([]);
         setChartType(null);
@@ -126,14 +124,12 @@ const App: React.FC = () => {
         setData(rows);
         setChartType(chartType);
         setErrorMsg(null);
-        setAvailableTables([]);
         setSqlQuery(sqlQuery);
       } else {
         setColumns([]);
         setData([]);
         setChartType(null);
         setErrorMsg("No data returned from query.");
-        setAvailableTables([]);
         setSqlQuery(null);
       }
     } catch (err) {
@@ -265,7 +261,6 @@ const App: React.FC = () => {
             onChange={(e) => {
               setQuery(e.target.value);
               setErrorMsg(null);
-              setAvailableTables([]);
               setSqlQuery(null);
             }}
             rows={6}
@@ -273,13 +268,6 @@ const App: React.FC = () => {
           {errorMsg && (
             <div className="error-box">
               <p style={{ color: 'red' }}>{errorMsg}</p>
-              {availableTables.length > 0 && (
-                <ul>
-                  {availableTables.map((table, index) => (
-                    <li key={index}>{table}</li>
-                  ))}
-                </ul>
-              )}
             </div>
           )}
         </div>
@@ -308,8 +296,8 @@ const App: React.FC = () => {
               {data.length > 0 ? (
                 <table {...tableInstance.getTableProps()} className="data-table">
                   <thead>
-                    {tableInstance.headerGroups.map((headerGroup: HeaderGroup) => (
-                      <tr {...headerGroup.getHeaderGroupProps()}>
+                    {tableInstance.headerGroups.map((headerGroup: HeaderGroup, index) => (
+                      <tr {...headerGroup.getHeaderGroupProps()} key={`header-${index}`}>
                         {headerGroup.headers.map((column) => (
                           <th {...column.getHeaderProps()} className="table-header">
                             {column.render("Header")}

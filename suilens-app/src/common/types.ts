@@ -8,6 +8,6 @@ export interface CreateEvents {
 }
 
 export interface GetSqlQueryResults{
-    query: string
+    text: string
     module: string
 }

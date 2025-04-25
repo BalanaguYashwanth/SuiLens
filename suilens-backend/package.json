@@ -8,7 +8,7 @@
     "db:setup:dev": "npx prisma migrate dev --name init --schema=./prisma/schema.prisma",
     "db:reset:dev": "npx prisma migrate reset --schema=./prisma/schema.prisma",
     "db:studio": "npx prisma studio --schema=./prisma/schema.prisma",
-    "dev": "node dist/server.js",
+    "dev": "npx ts-node server.ts",
     "indexer": "npx ts-node indexer.ts",
     "indexer:fast": "POLLING_INTERVAL_MS=1000 npx ts-node indexer.ts",
     "indexer:slow": "POLLING_INTERVAL_MS=10000 npx ts-node indexer.ts"
@@ -16,7 +16,7 @@
   "dependencies": {
     "@mysten/sui": "^1.18.0",
     "@prisma/client": "^5.16.2",
-    "axios": "^1.8.4",
+    "axios": "^1.9.0",
     "better-sqlite3": "^11.9.1",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",

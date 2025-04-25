@@ -8,7 +8,7 @@ import { tableExtractionPrompt } from './prompts/tableExtractionPrompt';
 
 type DB_QUERY = {
     module: string
-    query: string
+    text: string
 }
 
 export const openDatabaseConnection = (module: string): DatabaseType => {
@@ -26,10 +26,10 @@ export const checkTableExistence = (db: DatabaseType, tableName: string): boolea
     return result !== undefined;
 };
   
-export const getAllTables = (db: DatabaseType): string[] => {
-    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
-    return tables.map((table: any) => table.name);
-};
+export const getAllTablesWithSchema = (db: DatabaseType): { name: string; schema: string }[] => {
+    return db.prepare("SELECT name, sql FROM sqlite_master WHERE type='table'").all()
+      .map((row: any) => ({ name: row.name, schema: row.sql }));
+  };  
 
 export const executeSQLQuery = (db: DatabaseType, query: string) => {
     return db.prepare(query).all();
@@ -41,22 +41,11 @@ export const classifyUserInput = async (input: string) => {
     return inputType;
 };
   
-export const convertInstructionToSQL = async (instruction: string) => {
-    const prompt = convertPrompt(instruction);
+export const convertInstructionToSQL = async (db: DatabaseType, instruction: string) => {
+    const tables = getAllTablesWithSchema(db);
+    const prompt = convertPrompt(instruction, tables);    
     const sqlQuery = await callClaudeAI(prompt);
     return sqlQuery;
-};
-
-export const extractTablesFromQuery = async (query: string, queryType: string) => {
-    const prompt = tableExtractionPrompt(query, queryType);
-    const tablesResponse = await callClaudeAI(prompt);
-    
-    try {
-        return JSON.parse(tablesResponse);
-    } catch (error) {
-        console.error("Error parsing table names from LLM response:", error);
-        return [];
-    }
 };
 
 export const determineChartType = async (sampleData: any[], schema: string[]) => {
@@ -65,46 +54,34 @@ export const determineChartType = async (sampleData: any[], schema: string[]) =>
   return chartType;
 };
 
-export const processQueryPipeline = async ({ query, module }: DB_QUERY) => {
+export const processQueryPipeline = async ({ text, module }: DB_QUERY) => {
+    let query = text;
+
     // Step 1: Open the database connection
     const db = openDatabaseConnection(module);
 
     // Step 2: Classify the type of query
-    const queryType = await classifyUserInput(query);
+    const queryType = await classifyUserInput(text);
     console.log("Query Type:", queryType);
 
-    // Step 3: Extract table names based on the input type
-    const tableNames = await extractTablesFromQuery(query, queryType);
-    console.log("Extracted Table Names:", tableNames);
+    if(queryType == 'instruction'){
+        query = await convertInstructionToSQL(db, text)
+        if(query == 'None'){
+            return {
+                message: `The table(s) do not exist in the database. Please select only from the following available tables:`,
+                sqlQuery: null,
+            };
+        }
+    }
 
-    // Step 4: Check if all tables exist
-    const nonExistentTables = tableNames.filter((table: string) => !checkTableExistence(db, table));
-    if (nonExistentTables.length > 0) {
-        const availableTables = getAllTables(db);
-        return {
-            message: `The table(s) "${nonExistentTables.join('", "')}" do not exist in the database. Please select only from the following available tables:`,
-            availableTables,
-            sqlQuery: null,
-        };
-    }
-  
-    // Step 5: Convert natural language to SQL if needed
-    let finalQuery = query;
-    if (queryType.includes("instruction")) {
-      finalQuery = await convertInstructionToSQL(query);
-    }
-    console.log("Final Query Updated:", finalQuery);
-  
-    // Step 6: Execute the query 
-    const rows = executeSQLQuery(db, finalQuery);
-    console.log("Rows Returned:", rows.length);
-  
+    const rows = executeSQLQuery(db, query);
+ 
     // Step 7: Get chart type from sample data
     const schema = Object.keys(rows[0] || {});
     console.log("Schema:", schema)
     const chartType = await determineChartType(rows.slice(0, 3), schema);
     console.log("Chart Type:", chartType);
   
-    return { rows, chartType, sqlQuery: finalQuery };
+    return { rows, chartType, sqlQuery: query };
   };
   
