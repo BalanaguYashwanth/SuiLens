@@ -62,7 +62,6 @@ export const processQueryPipeline = async ({ text, module }: DB_QUERY) => {
 
     // Step 2: Classify the type of query
     const queryType = await classifyUserInput(text);
-    console.log("Query Type:", queryType);
 
     if(queryType == 'instruction'){
         query = await convertInstructionToSQL(db, text)
@@ -78,9 +77,7 @@ export const processQueryPipeline = async ({ text, module }: DB_QUERY) => {
  
     // Step 7: Get chart type from sample data
     const schema = Object.keys(rows[0] || {});
-    console.log("Schema:", schema)
     const chartType = await determineChartType(rows.slice(0, 3), schema);
-    console.log("Chart Type:", chartType);
   
     return { rows, chartType, sqlQuery: query };
   };
