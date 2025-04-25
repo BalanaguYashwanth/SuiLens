@@ -1,18 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { useTable, Column, HeaderGroup } from "react-table";
-import { Bar, Pie, Line } from "react-chartjs-2";
+import { Bar, Pie, Line,  } from "react-chartjs-2";
+import { Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  ArcElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend } from 'chart.js';
 import { getSqlQueryResults } from "../../common/api.services";
 import "./Dashboard.scss";
 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  ArcElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
 type RowData = Record<string, any>;
-
-type QueryHistoryItem = {
-  id: number;
-  query: string;
-  timestamp: Date;
-};
-
-type ChartType = "bar" | "pie" | "line" | null;
+type QueryHistoryItem = { id: number; query: string; timestamp: Date; };
+type ChartType = "bar" | "pie" | "line" | "tabular" | null;
 
 const App: React.FC = () => {
   const [query, setQuery] = useState<string>("");
@@ -22,6 +38,9 @@ const App: React.FC = () => {
   const [chartType, setChartType] = useState<ChartType>(null);
   const [chartData, setChartData] = useState<any>(null);
   const [availableChartTypes, setAvailableChartTypes] = useState<ChartType[]>([]);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [sqlQuery, setSqlQuery] = useState<string | null>(null);
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (data.length > 0 && columns.length > 0) {
@@ -72,16 +91,6 @@ const App: React.FC = () => {
   };
 
   const fetchData = async () => {
-
-    //TODO - uncomment once we implemented it
-    // const aiResponse = await axios.post<{ sql: string }>("/api/convert", { text: query });
-    // const sql = aiResponse.data.sql;
-
-    //TODO - uncomment once we implemented it
-    //   const chartSuggestion = await axios.post<ChartSuggestion>("/api/chart", { data: rows });
-    //   setChartType(chartSuggestion.data.type);
-    //   setChartData(chartSuggestion.data.chartData);
-  
     const newHistoryItem: QueryHistoryItem = {
       id: history.length + 1,
       query,
@@ -89,26 +98,48 @@ const App: React.FC = () => {
     };
     setHistory([...history, newHistoryItem]);
 
-    const dbResponse = await getSqlQueryResults({ 
-      query, 
-      module: localStorage.getItem('module') as string 
-    });
-    //TODO - Below remains same, don't need to modify
-    //in this response you will be getting the data, and what you need to do - in backend give this schema and first 3 rows of data to another agent
-    // where it will decide whether it should be shown as bar/pie/line/tabular etc chart
-    const rows = dbResponse;
+    try {
+      const dbResponse = await getSqlQueryResults({ 
+        text: query, 
+        module: localStorage.getItem('module') as string 
+      });
 
-    
-    if (rows.length > 0) {
-      const cols: Column<RowData>[] = Object.keys(rows[0]).map(key => ({
-        Header: key,
-        accessor: key,
-      }));
-      setColumns(cols);
-      setData(rows);
+      if (dbResponse.message && dbResponse?.availableTables) {
+        setErrorMsg(dbResponse.message);
+        setData([]);
+        setColumns([]);
+        setChartType(null);
+        setSqlQuery(null);
+        return;
+      }
+
+      const { rows, chartType, sqlQuery} = dbResponse;
+
+      if (Array.isArray(rows) && rows.length > 0) {
+        const cols: Column<RowData>[] = Object.keys(rows[0]).map(key => ({
+          Header: key,
+          accessor: key,
+        }));
+        setColumns(cols);
+        setData(rows);
+        setChartType(chartType);
+        setErrorMsg(null);
+        setSqlQuery(sqlQuery);
+      } else {
+        setColumns([]);
+        setData([]);
+        setChartType(null);
+        setErrorMsg("No data returned from query.");
+        setSqlQuery(null);
+      }
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setColumns([]);
+      setData([]);
+      setChartType(null);
+      setErrorMsg("Something went wrong while processing your request.");
+      setSqlQuery(null);
     }
-
-    
   };
 
   const tableInstance = useTable({ columns, data });
@@ -153,7 +184,6 @@ const App: React.FC = () => {
       },
     };
 
-    //todo - extend this graphs to tabular etc
     switch (chartType) {
       case 'bar':
         return <Bar data={chartData} options={commonOptions} />;
@@ -161,9 +191,40 @@ const App: React.FC = () => {
         return <Pie data={chartData} options={commonOptions} />;
       case 'line':
         return <Line data={chartData} options={commonOptions} />;
+      case 'tabular':
+        return (
+          <div className="table-container">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  {Object.keys(data[0]).map((key) => (
+                    <th key={key} className="table-header">
+                      {key}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {Object.keys(row).map((key) => (
+                      <td key={key} className="table-cell">
+                        {row[key]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
       default:
         return null;
     }
+  };
+
+  const togglePopup = () => {
+    setIsPopupOpen(!isPopupOpen);
   };
 
   return (
@@ -182,19 +243,45 @@ const App: React.FC = () => {
         <div className="query-section">
           <div className="query-header">
             <h3>Query Editor</h3>
-            <button onClick={fetchData} className="run-button">
-              Run
-            </button>
+            <div className="buttons-container">
+              <button onClick={fetchData} className="run-button">
+                Run
+              </button>
+              {sqlQuery && (
+                <button onClick={togglePopup} className="see-query-button">
+                  See Query
+                </button>
+              )}
+            </div>
           </div>
           <textarea
             className="query-input"
             placeholder="Enter your SQL query here..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setErrorMsg(null);
+              setSqlQuery(null);
+            }}
             rows={6}
           />
+          {errorMsg && (
+            <div className="error-box">
+              <p style={{ color: 'red' }}>{errorMsg}</p>
+            </div>
+          )}
         </div>
 
+        {isPopupOpen && sqlQuery && (
+          <div className="popup">
+            <div className="popup-content">
+              <h4>SQL Query:</h4>
+              <pre>{sqlQuery}</pre>
+              <button onClick={togglePopup}>Close</button>
+            </div>
+          </div>
+        )}
+    
         {/* Results Section (Bottom) - Split View */}
         <div className="results-section">
           {/* Table Panel (Left) */}
@@ -209,8 +296,8 @@ const App: React.FC = () => {
               {data.length > 0 ? (
                 <table {...tableInstance.getTableProps()} className="data-table">
                   <thead>
-                    {tableInstance.headerGroups.map((headerGroup: HeaderGroup) => (
-                      <tr {...headerGroup.getHeaderGroupProps()}>
+                    {tableInstance.headerGroups.map((headerGroup: HeaderGroup, index) => (
+                      <tr {...headerGroup.getHeaderGroupProps()} key={`header-${index}`}>
                         {headerGroup.headers.map((column) => (
                           <th {...column.getHeaderProps()} className="table-header">
                             {column.render("Header")}
@@ -248,23 +335,22 @@ const App: React.FC = () => {
               <h3>Visualization</h3>
               {availableChartTypes.length > 0 && (
                 <div className="chart-type-selector">
-                  {availableChartTypes.map(type => (
-                    <button
-                      key={type}
-                      className={`chart-type-btn ${chartType === type ? 'active' : ''}`}
-                      onClick={() => setChartType(type)}
-                    >
-                      text
-                      {/* #TODO - resolve this issue */}
-                      {/* {type.charAt(0).toUpperCase() + type.slice(1)} */}
-                    </button>
+                  {availableChartTypes.map((type) => (
+                    type && (
+                      <button
+                        key={type}
+                        className={`chart-type-btn ${chartType === type ? 'active' : ''}`}
+                        onClick={() => setChartType(type)}
+                      >
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </button>
+                    )
                   ))}
                 </div>
               )}
             </div>
             <div className="chart-container">
-              {/* #TODO - resolve this issue */}
-              {/* {renderChart()} */}
+              {renderChart()}
             </div>
           </div>
         </div>
