@@ -1,0 +1,18 @@
+{
+  "name": "analytics-storage-server",
+  "version": "1.0.0",
+  "description": "Express server to handle sqlite DB operations",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
