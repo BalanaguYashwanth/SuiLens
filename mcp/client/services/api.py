@@ -14,11 +14,7 @@ def get_llm_response(messages, tools):
         max_tokens=1000,
         messages=messages,
         tools=tools,
+        tool_choice={"type": "any"},
     )
-
-    text_response = check_is_valid_llm_response(raw_response)
-
-    if text_response == 'None' or (not text_response) :
-        return None
 
     return raw_response
