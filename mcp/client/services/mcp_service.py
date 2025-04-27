@@ -25,8 +25,7 @@ class MCPClient:
         self.resources_resp = await self.session.list_resources() # list_resource_templates() for dynamic
         self.tools_resp = await self.session.list_tools()
 
-    async def process_query(self, query: str) -> str:
-        db_name = 'hello_world1'
+    async def process_query(self, query: str, db_name) -> str:
         if not self.session:
             raise RuntimeError("Session is not initialized. Call initialize() first.")
 
@@ -50,7 +49,6 @@ class MCPClient:
 
         schema_response = await self.session.read_resource(f"schema://db//{db_name}")
 
-        print('--schema_response--', schema_response)
 
         schema_resource = schema_response.contents[0].text
 
@@ -78,7 +76,8 @@ class MCPClient:
         
 
         final_text = []
-        print('---response---', response.content)
+        list = []
+
         for content in response.content:
 
             if content.type == "text":
@@ -99,29 +98,10 @@ class MCPClient:
                 list = [content.text for content in call_tool_response_contents]
 
                 # Now `cleaned_output` will only contain the raw text
-                print('---list--',list)
 
-                second_response = f"""
-                Convert the following tool result into a JSON object with exactly two fields:
-                1. 'query': The original user query
-                2. 'message': The content from the tool result
+        if len(list):
+            return list
 
-                Return ONLY the raw JSON object without code blocks, quotes, explanations, or any other text.
-                Format: {{\"query\":\"\", \"message\":\"\"}}
-
-                Tool result:
-                {json.dumps(list)}
-                """
-                messages=[{
-                    "role": "user",
-                    "content": second_response
-                }]
-                print('---messages-1111-',messages)
-                response = get_llm_response(messages=messages, tools=[])
-                print('---response--111', response)
-                
-
-                print('--final_text---', final_text)
 
         return final_text
 

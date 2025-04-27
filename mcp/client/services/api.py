@@ -2,25 +2,23 @@ import os
 import re
 from dotenv import load_dotenv
 from anthropic import Anthropic
+from .utils import check_is_valid_llm_response
 
 load_dotenv()
 
 anthropic = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 def get_llm_response(messages, tools):
-    response = anthropic.messages.create(
+    raw_response = anthropic.messages.create(
         model="claude-3-5-sonnet-20241022",
         max_tokens=1000,
         messages=messages,
         tools=tools,
     )
-    # Assuming the text is inside response.content[0].text
-    raw_text = response.content[0].text if response.content else ""
 
-    # Clean the text by removing everything after "(Explanation:"
-    cleaned_text = re.split(r'\(Explanation:', raw_text)[0].strip()
+    text_response = check_is_valid_llm_response(raw_response)
 
-    if cleaned_text == 'None' or (not cleaned_text) :
+    if text_response == 'None' or (not text_response) :
         return None
 
-    return response
+    return raw_response

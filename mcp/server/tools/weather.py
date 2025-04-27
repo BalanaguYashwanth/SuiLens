@@ -67,7 +67,7 @@ async def read_query(db: str,query: str) -> str:
         output = []
         for row in results:
             output.append(", ".join(f"{k}: {row[k]}" for k in row.keys()))
-        print('--results--', results, '--output--', output)
+
         return output
 
     except Exception as e:

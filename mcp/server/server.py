@@ -10,7 +10,6 @@ from tools.weather import get_alerts
 from tools.weather import read_query
 from tools.weather import get_db_schema
 # from tools.sql import sql_tools
-import mcp.types as types
 import uvicorn
 
 load_dotenv('.env')
