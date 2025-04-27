@@ -29,6 +29,7 @@ class MCPClient:
         if not self.session:
             raise RuntimeError("Session is not initialized. Call initialize() first.")
 
+        
         tools = [
             {
                 "name": t.name,
@@ -37,6 +38,7 @@ class MCPClient:
             }
             for t in self.tools_resp.tools
         ]
+
         resources = [
             {
                 "name": resource.name,
@@ -64,8 +66,10 @@ class MCPClient:
                     For example -
                     - Weather information, use the get_alerts tool
                     - Database queries, use the read_query tool with a valid SQL query
+                        - If user query has direct sql query then directly pass into available tools to execute
                 3. You MUST use separate tool calls for separate tasks, completing ALL requested tasks.
-                4. Before answering, explain your reasoning step-by-step in tags.
+                4. If there is any email related query then explicity keep email tools at the end in output array (giving last priority to execute in call tools)
+                5. Before answering, explain your reasoning step-by-step in tags.
                 """
         
         # Prepare the message to send
@@ -77,10 +81,12 @@ class MCPClient:
                 messages=messages, 
                 tools=tools
             )
+
         if not response:
             return None
         
         final_text = {}
+        sql_output = str([])
         index = 1
         for content in response.content:
 
@@ -89,8 +95,14 @@ class MCPClient:
                 index = index + 1
 
             elif content.type == "tool_use":
+
+                if content.name == 'send_email_async':
+                    content.input['content'] = str(sql_output)
+
                 tool_name = content.name
                 tool_args = content.input
+
+
 
                 call_tool_result = await self.session.call_tool(tool_name, tool_args)
 
@@ -101,6 +113,7 @@ class MCPClient:
                 if tool_name in ['read_query']:
                     # Extract just the 'text' content
                     final_text['list'] = [content.text for content in call_tool_response_contents]
+                    sql_output = final_text['list']
                 else:
                     final_text['text'+ str(index)] = call_tool_result.content
 
@@ -114,8 +127,3 @@ class MCPClient:
 
 # Initialize MCP Client
 mcp_client = MCPClient(server_url="http://localhost:8050")
-
-# Example of a query
-# query = "Fetch the NFT schema for the specified table and get the list of NFTs"
-# response = await mcp_client.process_query(query)
-# print(response)

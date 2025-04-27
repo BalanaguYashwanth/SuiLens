@@ -1,19 +1,12 @@
-import sys
-import asyncio
+import uvicorn
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from mcp.server.sse import SseServerTransport
 from starlette.applications import Starlette
 from starlette.routing import Route, Mount
-# from tools import register_tools
-from tools.weather import get_alerts
-from tools.weather import read_query
-from tools.weather import get_db_schema
-# from tools.sql import sql_tools
-import uvicorn
+from tools.weather import get_alerts,  read_query, get_db_schema, send_email_async
 
 load_dotenv('.env')
-
 
 class MCPServer:
     def __init__(self):
@@ -27,6 +20,7 @@ class MCPServer:
     def register_list_tools(self):
         self.mcp.tool()(get_alerts)
         self.mcp.tool()(read_query)
+        self.mcp.tool()(send_email_async)
 
     def register_resources(self) -> None:
        self.mcp.resource("schema://db//{name}")(get_db_schema)
