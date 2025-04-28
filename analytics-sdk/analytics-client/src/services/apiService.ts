@@ -12,7 +12,7 @@ const api = axios.create({
 export async function createDatabaseAndTable(dbName: string, tableName: string): Promise<void> {
   if (!dbName) throw new ValidationError('Database name are required.');
   try {
-    const res = await api.post('/database/create', { dbName, tableName });
+    const res = await api.post('/event/create', { dbName, tableName });
     if (res.status !== 200) throw new Error('Unexpected response while creating DB/Table.');
   } catch (error: any) {
     console.error('Error during createDatabaseAndTable:', error.message);
@@ -23,7 +23,7 @@ export async function createDatabaseAndTable(dbName: string, tableName: string):
 export async function insertTable(dbName: string, tableName: string, data: any): Promise<void> {
   if (!dbName || !tableName || !data) throw new ValidationError('Database, table, and data are required for insert.');
   try {
-    const res = await api.post('/database/insert', { dbName, tableName, data });
+    const res = await api.post('/event/insert', { dbName, tableName, data });
     if (res.status !== 200) throw new Error('Unexpected response while inserting.');
   } catch (error: any) {
     console.error('Error during insertData:', error.message);
@@ -34,7 +34,7 @@ export async function insertTable(dbName: string, tableName: string, data: any):
 export async function updateTable(dbName: string, tableName: string, data: any): Promise<void> {
   if (!dbName || !tableName || !data) throw new ValidationError('Database, table, and data are required for update.');
   try {
-    const res = await api.put('/database/update', { dbName, tableName, data });
+    const res = await api.put('/event/update', { dbName, tableName, data });
     if (res.status !== 200) throw new Error('Unexpected response while updating.');
   } catch (error: any) {
     console.error('Error during updateData:', error.message);
@@ -45,7 +45,7 @@ export async function updateTable(dbName: string, tableName: string, data: any):
 export async function deleteTable(dbName: string, tableName: string): Promise<void> {
   if (!dbName || !tableName) throw new ValidationError('Database and table are required for delete.');
   try {
-    const res = await api.delete('/database/delete', { data: { dbName, tableName } });
+    const res = await api.delete('/event/delete', { data: { dbName, tableName } });
     if (res.status !== 200) throw new Error('Unexpected response while deleting table.');
   } catch (error: any) {
     console.error('Error during deleteTable:', error.message);
