@@ -28,10 +28,10 @@ export class SuilensClient {
             throw new InitializationError('SuilensClient is not initialized. Call init() first.');
         }
     }
-    async push(data) {
+    async insert(data) {
         this.ensureInitialized();
         if (!data || typeof data !== 'object') {
-            throw new ValidationError('Push data must be a valid JSON object.');
+            throw new ValidationError('Insert data must be a valid JSON object.');
         }
         await insertData(this.dbName, this.tableName, data);
     }

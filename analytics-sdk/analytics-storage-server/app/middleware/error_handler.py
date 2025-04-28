@@ -1,6 +1,7 @@
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from src.errors.api_error import ApiError
+
+from app.utils.api_error import ApiError
 
 class ErrorHandlerMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):

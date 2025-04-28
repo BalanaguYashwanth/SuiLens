@@ -6,7 +6,7 @@ export declare class SuilensClient {
     constructor();
     init(options: InitOptions): Promise<void>;
     private ensureInitialized;
-    push(data: any): Promise<void>;
+    insert(data: any): Promise<void>;
     update(data: any): Promise<void>;
     delete(): Promise<void>;
 }

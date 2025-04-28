@@ -1,21 +1,18 @@
 import axios from 'axios';
-// import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import { ValidationError } from '../errors/ValidationError.js';
-// dotenv.config();
+dotenv.config();
 
-const API_BASE_URL = 'http://localhost:8000/api';
-
-// const { API_BASE_URL } = process.env;
+const { SUILENS_API_URL } = process.env;
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
-  // timeout: 5000,
+  baseURL: SUILENS_API_URL
 });
 
 export async function createDatabaseAndTable(dbName: string, tableName: string): Promise<void> {
   if (!dbName) throw new ValidationError('Database name are required.');
   try {
-    const res = await api.post('/create', { dbName, tableName });
+    const res = await api.post('/database/create', { dbName, tableName });
     if (res.status !== 200) throw new Error('Unexpected response while creating DB/Table.');
   } catch (error: any) {
     console.error('Error during createDatabaseAndTable:', error.message);
@@ -23,10 +20,10 @@ export async function createDatabaseAndTable(dbName: string, tableName: string):
   }
 }
 
-export async function insertData(dbName: string, tableName: string, data: any): Promise<void> {
+export async function insertTable(dbName: string, tableName: string, data: any): Promise<void> {
   if (!dbName || !tableName || !data) throw new ValidationError('Database, table, and data are required for insert.');
   try {
-    const res = await api.post('/insert', { dbName, tableName, data });
+    const res = await api.post('/database/insert', { dbName, tableName, data });
     if (res.status !== 200) throw new Error('Unexpected response while inserting.');
   } catch (error: any) {
     console.error('Error during insertData:', error.message);
@@ -34,10 +31,10 @@ export async function insertData(dbName: string, tableName: string, data: any): 
   }
 }
 
-export async function updateData(dbName: string, tableName: string, data: any): Promise<void> {
+export async function updateTable(dbName: string, tableName: string, data: any): Promise<void> {
   if (!dbName || !tableName || !data) throw new ValidationError('Database, table, and data are required for update.');
   try {
-    const res = await api.put('/update', { dbName, tableName, data });
+    const res = await api.put('/database/update', { dbName, tableName, data });
     if (res.status !== 200) throw new Error('Unexpected response while updating.');
   } catch (error: any) {
     console.error('Error during updateData:', error.message);
@@ -48,7 +45,7 @@ export async function updateData(dbName: string, tableName: string, data: any): 
 export async function deleteTable(dbName: string, tableName: string): Promise<void> {
   if (!dbName || !tableName) throw new ValidationError('Database and table are required for delete.');
   try {
-    const res = await api.delete('/delete', { data: { dbName, tableName } });
+    const res = await api.delete('/database/delete', { data: { dbName, tableName } });
     if (res.status !== 200) throw new Error('Unexpected response while deleting table.');
   } catch (error: any) {
     console.error('Error during deleteTable:', error.message);

@@ -1,5 +1,6 @@
 from fastapi import Request
-from src.errors.api_error import ApiError
+
+from app.utils.api_error import ApiError
 
 async def validate_request(request: Request, required_fields: list):
     body = await request.json()
