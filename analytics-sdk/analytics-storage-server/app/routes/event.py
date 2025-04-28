@@ -1,36 +1,36 @@
 from fastapi import APIRouter, Request
 from app.utils.app_utils import get_app
 
-database_router = APIRouter(prefix="/database", tags=["database"])
+event_router = APIRouter(prefix="/event", tags=["event_router"])
 
-@database_router.post("/create")
+@event_router.post("/create")
 async def handle_create(request: Request):
     body = await request.json()
     app = get_app()
     
-    await app.db_service.create_database_and_table(body['dbName'], body['tableName'])
+    await app.event_service.create_database_and_table(body['dbName'], body['tableName'])
     return {"success": True, "message": "Database and table ready"}
 
-@database_router.post("/insert")
+@event_router.post("/insert")
 async def handle_insert(request: Request):
     body = await request.json()
     app = get_app()
 
-    await app.db_service.insert_data(body['dbName'], body['tableName'], body['data'])
+    await app.event_service.insert_data(body['dbName'], body['tableName'], body['data'])
     return {"success": True, "message": "Data inserted"}
 
-@database_router.put("/update")
+@event_router.put("/update")
 async def handle_update(request: Request):
     body = await request.json()
     app = get_app()
 
-    await app.db_service.update_data(body['dbName'], body['tableName'], body['data'])
+    await app.event_service.update_data(body['dbName'], body['tableName'], body['data'])
     return {"success": True, "message": "Data updated"}
 
-@database_router.delete("/delete")
+@event_router.delete("/delete")
 async def handle_delete(request: Request):
     body = await request.json()
     app = get_app()
 
-    await app.db_service.delete_data(body['dbName'], body['tableName'])
+    await app.event_service.delete_data(body['dbName'], body['tableName'])
     return {"success": True, "message": "Table deleted"}

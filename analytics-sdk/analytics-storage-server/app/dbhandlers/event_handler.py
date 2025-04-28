@@ -3,7 +3,7 @@ import time
 from app.utils.db_connection import get_db_connection
 from app.utils.api_error import ApiError
 
-class DatabaseHandler:
+class EventHandler:
     def __init__(self):
         pass
 
@@ -56,12 +56,10 @@ class DatabaseHandler:
                         cursor.execute(alter_query)
 
             columns = data["data"].keys()
-            print(f"Columns for insert: {columns}")
             placeholders = ", ".join(["?" for _ in columns])
             values = tuple(data["data"].values())
 
             insert_query = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})"
-            print(f"Insert Query: {insert_query}")
             cursor.execute(insert_query, values)
 
             conn.commit()
@@ -128,10 +126,8 @@ class DatabaseHandler:
                 cursor.execute(f"DELETE FROM {table_name} WHERE id = ?", (data_id,))
                 if cursor.rowcount == 0:
                     raise ApiError(404, "Record not found")
-                print(f"Deleted record with id {data_id}")
             else:
                 cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
-                print(f"Dropped table {table_name}")
 
             conn.commit()
             time.sleep(0.05) 

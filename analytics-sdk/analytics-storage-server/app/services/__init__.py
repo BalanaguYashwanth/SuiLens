@@ -2,6 +2,6 @@ from app.custom_fastapi import CustmFastAPI
 
 def init_services(app: CustmFastAPI):
     """Initialize services in the app state."""
-    from app.services.database_service import DatabaseService
+    from app.services.event_service import EventService
  
-    app.database_service = DatabaseService()
+    app.event_service = EventService()

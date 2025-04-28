@@ -4,8 +4,8 @@ class CustmFastAPI(FastAPI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        from app.services.database_service import DatabaseService
-        from app.dbhandlers.database_handler import DatabaseHandler
+        from app.services.event_service import EventService
+        from app.dbhandlers.event_handler import EventHandler
         
-        self.database_service = DatabaseService()
-        self.database_handler = DatabaseHandler()
+        self.event_service = EventService()
+        self.event_handler = EventHandler()

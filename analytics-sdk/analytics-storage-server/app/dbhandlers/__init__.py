@@ -1,8 +1,8 @@
 from app.custom_fastapi import CustmFastAPI
 
-from app.dbhandlers.database_handler import DatabaseHandler
+from app.dbhandlers.event_handler import EventHandler 
 
 def init_handlers(app: 'CustmFastAPI'):
     """Initialize handlers in the app state."""
-    app.database_handler = DatabaseHandler()
+    app.event_handler = EventHandler()
   
