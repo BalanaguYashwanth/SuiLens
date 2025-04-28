@@ -1,108 +1,62 @@
-from typing import Any
-import httpx
-from mcp.server.fastmcp import FastMCP
+import uvicorn
 from dotenv import load_dotenv
+from mcp.server.fastmcp import FastMCP
+from mcp.server.sse import SseServerTransport
+from starlette.applications import Starlette
+from starlette.routing import Route, Mount
+from tools.weather import get_alerts,  read_query, get_db_schema, send_email_async
 
 load_dotenv('.env')
 
-# Initialize FastMCP server
-mcp = FastMCP(
-        name="weather",
-        host="0.0.0.0",
-        port=8050
-    )
+class MCPServer:
+    def __init__(self):
+        self.mcp = FastMCP(
+            name="weather",
+            host="0.0.0.0",
+            port=8050,
+            timeout=30
+        )
 
-# Constants
-NWS_API_BASE = "https://api.weather.gov"
-USER_AGENT = "weather-app/1.0"
+    def register_list_tools(self):
+        self.mcp.tool()(get_alerts)
+        self.mcp.tool()(read_query)
+        self.mcp.tool()(send_email_async)
 
-async def make_nws_request(url: str) -> dict[str, Any] | None:
-    """Make a request to the NWS API with proper error handling."""
-    headers = {
-        "User-Agent": USER_AGENT,
-        "Accept": "application/geo+json"
-    }
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(url, headers=headers, timeout=30.0)
-            response.raise_for_status()
-            return response.json()
-        except Exception:
-            return None
+    def register_resources(self) -> None:
+       self.mcp.resource("schema://db//{name}")(get_db_schema)
 
-def format_alert(feature: dict) -> str:
-    """Format an alert feature into a readable string."""
-    props = feature["properties"]
-    return f"""
-Event: {props.get('event', 'Unknown')}
-Area: {props.get('areaDesc', 'Unknown')}
-Severity: {props.get('severity', 'Unknown')}
-Description: {props.get('description', 'No description available')}
-Instructions: {props.get('instruction', 'No specific instructions provided')}
-"""
+    def create_starlette_app(self):
+        self.register_list_tools()
+        self.register_resources()
 
-@mcp.tool()
-async def get_alerts(state: str) -> str:
-    """Get weather alerts for a US state.
+        transport = SseServerTransport("/mcp/messages/")
 
-    Args:
-        state: Two-letter US state code (e.g. CA, NY)
-    """
-    url = f"{NWS_API_BASE}/alerts/active/area/{state}"
-    data = await make_nws_request(url)
+        async def handle_sse(request):
+            async with transport.connect_sse(
+                request.scope, request.receive, request._send
+            ) as streams:
+                await self.mcp._mcp_server.run(
+                    streams[0],
+                    streams[1],
+                    self.mcp._mcp_server.create_initialization_options()
+                )
 
-    if not data or "features" not in data:
-        return "Unable to fetch alerts or no alerts found."
+        return Starlette(
+            debug=True,
+            routes=[
+                Route("/sse", endpoint=handle_sse),
+                Mount("/mcp/messages/", app=transport.handle_post_message)
+            ]
+        )
 
-    if not data["features"]:
-        return "No active alerts for this state."
+    def run(self, transport_type="sse"):
+        if transport_type == "stdio":
+            self.mcp.run(transport="stdio")
+        else:
+            app = self.create_starlette_app()
+            uvicorn.run(app, host="0.0.0.0", port=8050, log_level="debug")
 
-    alerts = [format_alert(feature) for feature in data["features"]]
-    return "\n---\n".join(alerts)
-
-@mcp.tool()
-async def get_forecast(latitude: float, longitude: float) -> str:
-    """Get weather forecast for a location.
-
-    Args:
-        latitude: Latitude of the location
-        longitude: Longitude of the location
-    """
-    # First get the forecast grid endpoint
-    points_url = f"{NWS_API_BASE}/points/{latitude},{longitude}"
-    points_data = await make_nws_request(points_url)
-
-    if not points_data:
-        return "Unable to fetch forecast data for this location."
-
-    # Get the forecast URL from the points response
-    forecast_url = points_data["properties"]["forecast"]
-    forecast_data = await make_nws_request(forecast_url)
-
-    if not forecast_data:
-        return "Unable to fetch detailed forecast."
-
-    # Format the periods into a readable forecast
-    periods = forecast_data["properties"]["periods"]
-    forecasts = []
-    for period in periods[:5]:  # Only show next 5 periods
-        forecast = f"""
-{period['name']}:
-Temperature: {period['temperature']}°{period['temperatureUnit']}
-Wind: {period['windSpeed']} {period['windDirection']}
-Forecast: {period['detailedForecast']}
-"""
-        forecasts.append(forecast)
-
-    return "\n---\n".join(forecasts)
 
 if __name__ == "__main__":
-    transport = "sse"
-    if transport == "stdio":
-        print("Running server with stdio transport")
-        mcp.run(transport="stdio")
-    elif transport == "sse":
-        print("Running server with SSE transport")
-        mcp.run(transport="sse")
-    else:
-        raise ValueError(f"Unknown transport: {transport}")
+    server = MCPServer()
+    server.run(transport_type="sse")  # choose "stdio" or "sse"
