@@ -16,7 +16,7 @@ async def handle_insert(request: Request):
     body = await request.json()
     app = get_app()
 
-    await app.event_service.insert_data(body['dbName'], body['tableName'], body['data'])
+    await app.event_service.insert_table(body['dbName'], body['tableName'], body['data'])
     return {"success": True, "message": "Data inserted"}
 
 @event_router.put("/update")
@@ -24,7 +24,7 @@ async def handle_update(request: Request):
     body = await request.json()
     app = get_app()
 
-    await app.event_service.update_data(body['dbName'], body['tableName'], body['data'])
+    await app.event_service.update_table(body['dbName'], body['tableName'], body['data'])
     return {"success": True, "message": "Data updated"}
 
 @event_router.delete("/delete")
@@ -32,5 +32,5 @@ async def handle_delete(request: Request):
     body = await request.json()
     app = get_app()
 
-    await app.event_service.delete_data(body['dbName'], body['tableName'])
+    await app.event_service.delete_table(body['dbName'], body['tableName'])
     return {"success": True, "message": "Table deleted"}

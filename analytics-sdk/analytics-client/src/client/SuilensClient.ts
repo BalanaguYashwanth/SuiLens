@@ -1,7 +1,7 @@
 import { createDatabaseAndTable, insertTable, updateTable, deleteTable } from '../services/apiService.js';
 import { InitializationError } from '../errors/InitializationError.js';
 import { ValidationError } from '../errors/ValidationError.js';
-import { InitOptions } from '../interfaces/initOptions.js';
+import { InitOptions } from '../interfaces/InitOptions.js';
 
 export class SuilensClient {
   private dbName: string;

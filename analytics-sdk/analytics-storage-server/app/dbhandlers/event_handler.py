@@ -7,7 +7,8 @@ class EventHandler:
     def __init__(self):
         pass
 
-    async def check_and_create_table(db: str, table_name: str):
+    #TODO - Check if data is not exists, its not accepting this function
+    async def check_and_create_table(self, db: str, table_name: str):
         conn = None
         try:
             conn = get_db_connection(db)
@@ -32,7 +33,7 @@ class EventHandler:
                 conn.close()
                 time.sleep(0.05)
 
-    async def insert_data(db: str, table_name: str, data: dict):
+    async def insert_data(self, db: str, table_name: str, data: dict):
         conn = None
         try:
             conn = get_db_connection(db)
@@ -75,7 +76,7 @@ class EventHandler:
                 time.sleep(0.05)
 
 
-    async def update_data(db: str, table_name: str, data: dict):
+    async def update_data(self, db: str, table_name: str, data: dict):
         conn = None
         try:
             conn = get_db_connection(db)
@@ -116,7 +117,7 @@ class EventHandler:
                 conn.close()
                 time.sleep(0.05) 
 
-    async def delete_data(db: str, table_name: str, data_id: str = None):
+    async def delete_data(self, db: str, table_name: str, data_id: str = None):
         conn = None
         try:
             conn = get_db_connection(db)

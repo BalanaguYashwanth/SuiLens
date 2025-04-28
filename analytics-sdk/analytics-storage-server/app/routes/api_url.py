@@ -9,7 +9,6 @@ api_url_router = APIRouter(prefix="/api-url", tags=["api_url_router"])
 
 @api_url_router.get("/get")
 async def get_api_url(request: Request, db: Session = Depends(get_db_connection)):
-    app = request.app
     api_url_service = ApiUrlService()
 
     try:
