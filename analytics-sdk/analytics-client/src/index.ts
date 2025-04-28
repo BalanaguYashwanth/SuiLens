@@ -1,1 +1,1 @@
-export { SuilensClient } from './client/SuilensClient';
+export { SuilensClient } from './client/SuilensClient.js';

@@ -1,42 +1,62 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createDatabaseAndTable = createDatabaseAndTable;
-exports.insertData = insertData;
-exports.updateData = updateData;
-exports.deleteTable = deleteTable;
-const axios_1 = __importDefault(require("axios"));
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
-const { API_BASE_URL } = process.env;
-function createDatabaseAndTable(db, table) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield axios_1.default.post(`${API_BASE_URL}/create`, { db, table });
-    });
+import axios from 'axios';
+// import dotenv from 'dotenv';
+import { ValidationError } from '../errors/ValidationError.js';
+// dotenv.config();
+const API_BASE_URL = 'http://localhost:8000/api';
+// const { API_BASE_URL } = process.env;
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    // timeout: 5000,
+});
+export async function createDatabaseAndTable(dbName, tableName) {
+    if (!dbName)
+        throw new ValidationError('Database name are required.');
+    try {
+        const res = await api.post('/create', { dbName, tableName });
+        if (res.status !== 200)
+            throw new Error('Unexpected response while creating DB/Table.');
+    }
+    catch (error) {
+        console.error('Error during createDatabaseAndTable:', error.message);
+        throw new Error('Failed to create database and table: ' + (error.response?.data?.message || error.message));
+    }
 }
-function insertData(db, table, data) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield axios_1.default.post(`${API_BASE_URL}/insert`, { db, table, data });
-    });
+export async function insertData(dbName, tableName, data) {
+    if (!dbName || !tableName || !data)
+        throw new ValidationError('Database, table, and data are required for insert.');
+    try {
+        const res = await api.post('/insert', { dbName, tableName, data });
+        if (res.status !== 200)
+            throw new Error('Unexpected response while inserting.');
+    }
+    catch (error) {
+        console.error('Error during insertData:', error.message);
+        throw new Error('Failed to insert data: ' + (error.response?.data?.message || error.message));
+    }
 }
-function updateData(db, table, data) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield axios_1.default.put(`${API_BASE_URL}/update`, { db, table, data });
-    });
+export async function updateData(dbName, tableName, data) {
+    if (!dbName || !tableName || !data)
+        throw new ValidationError('Database, table, and data are required for update.');
+    try {
+        const res = await api.put('/update', { dbName, tableName, data });
+        if (res.status !== 200)
+            throw new Error('Unexpected response while updating.');
+    }
+    catch (error) {
+        console.error('Error during updateData:', error.message);
+        throw new Error('Failed to update data: ' + (error.response?.data?.message || error.message));
+    }
 }
-function deleteTable(db, table) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield axios_1.default.delete(`${API_BASE_URL}/delete`, { data: { db, table } });
-    });
+export async function deleteTable(dbName, tableName) {
+    if (!dbName || !tableName)
+        throw new ValidationError('Database and table are required for delete.');
+    try {
+        const res = await api.delete('/delete', { data: { dbName, tableName } });
+        if (res.status !== 200)
+            throw new Error('Unexpected response while deleting table.');
+    }
+    catch (error) {
+        console.error('Error during deleteTable:', error.message);
+        throw new Error('Failed to delete table: ' + (error.response?.data?.message || error.message));
+    }
 }

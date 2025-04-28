@@ -1,55 +1,50 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.SuilensClient = void 0;
-const apiService_1 = require("../services/apiService");
-class SuilensClient {
+import { createDatabaseAndTable, insertData, updateData, deleteTable } from '../services/apiService.js';
+import { InitializationError } from '../errors/InitializationError.js';
+import { ValidationError } from '../errors/ValidationError.js';
+export class SuilensClient {
     constructor() {
         this.initialized = false;
         this.dbName = '';
         this.tableName = '';
     }
-    init(options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { dbName, tableName } = options;
-            yield (0, apiService_1.createDatabaseAndTable)(dbName, tableName);
+    async init(options) {
+        const { dbName, tableName } = options;
+        if (!dbName || !tableName) {
+            throw new ValidationError('Both dbName and tableName must be provided.');
+        }
+        try {
+            await createDatabaseAndTable(dbName, tableName);
             this.dbName = dbName;
             this.tableName = tableName;
             this.initialized = true;
-        });
+        }
+        catch (error) {
+            console.error('Initialization failed:', error.message);
+            throw error;
+        }
     }
-    push(data) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.initialized) {
-                throw new Error('SuilensClient is not initialized. Call init() first.');
-            }
-            yield (0, apiService_1.insertData)(this.dbName, this.tableName, data);
-        });
+    ensureInitialized() {
+        if (!this.initialized) {
+            throw new InitializationError('SuilensClient is not initialized. Call init() first.');
+        }
     }
-    update(data) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.initialized) {
-                throw new Error('SuilensClient is not initialized. Call init() first.');
-            }
-            yield (0, apiService_1.updateData)(this.dbName, this.tableName, data);
-        });
+    async push(data) {
+        this.ensureInitialized();
+        if (!data || typeof data !== 'object') {
+            throw new ValidationError('Push data must be a valid JSON object.');
+        }
+        await insertData(this.dbName, this.tableName, data);
     }
-    delete() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.initialized) {
-                throw new Error('SuilensClient is not initialized. Call init() first.');
-            }
-            yield (0, apiService_1.deleteTable)(this.dbName, this.tableName);
-            this.initialized = false;
-        });
+    async update(data) {
+        this.ensureInitialized();
+        if (!data || typeof data !== 'object') {
+            throw new ValidationError('Update data must be a valid JSON object.');
+        }
+        await updateData(this.dbName, this.tableName, data);
+    }
+    async delete() {
+        this.ensureInitialized();
+        await deleteTable(this.dbName, this.tableName);
+        this.initialized = false;
     }
 }
-exports.SuilensClient = SuilensClient;

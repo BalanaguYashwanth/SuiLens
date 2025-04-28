@@ -1,28 +1,32 @@
 import axios from 'axios';
-import { ValidationError } from '../errors/ValidationError';
+// import dotenv from 'dotenv';
+import { ValidationError } from '../errors/ValidationError.js';
+// dotenv.config();
 
-const { API_BASE_URL } = process.env;
+const API_BASE_URL = 'http://localhost:8000/api';
+
+// const { API_BASE_URL } = process.env;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 5000,
+  // timeout: 5000,
 });
 
-export async function createDatabaseAndTable(db: string, table: string): Promise<void> {
-  if (!db || !table) throw new ValidationError('Database name and table name are required.');
+export async function createDatabaseAndTable(dbName: string, tableName: string): Promise<void> {
+  if (!dbName) throw new ValidationError('Database name are required.');
   try {
-    const res = await api.post('/create', { db, table });
+    const res = await api.post('/create', { dbName, tableName });
     if (res.status !== 200) throw new Error('Unexpected response while creating DB/Table.');
   } catch (error: any) {
     console.error('Error during createDatabaseAndTable:', error.message);
-    throw new Error('Failed to create database or table: ' + (error.response?.data?.message || error.message));
+    throw new Error('Failed to create database and table: ' + (error.response?.data?.message || error.message));
   }
 }
 
-export async function insertData(db: string, table: string, data: any): Promise<void> {
-  if (!db || !table || !data) throw new ValidationError('Database, table, and data are required for insert.');
+export async function insertData(dbName: string, tableName: string, data: any): Promise<void> {
+  if (!dbName || !tableName || !data) throw new ValidationError('Database, table, and data are required for insert.');
   try {
-    const res = await api.post('/insert', { db, table, data });
+    const res = await api.post('/insert', { dbName, tableName, data });
     if (res.status !== 200) throw new Error('Unexpected response while inserting.');
   } catch (error: any) {
     console.error('Error during insertData:', error.message);
@@ -30,10 +34,10 @@ export async function insertData(db: string, table: string, data: any): Promise<
   }
 }
 
-export async function updateData(db: string, table: string, data: any): Promise<void> {
-  if (!db || !table || !data) throw new ValidationError('Database, table, and data are required for update.');
+export async function updateData(dbName: string, tableName: string, data: any): Promise<void> {
+  if (!dbName || !tableName || !data) throw new ValidationError('Database, table, and data are required for update.');
   try {
-    const res = await api.post('/update', { db, table, data });
+    const res = await api.put('/update', { dbName, tableName, data });
     if (res.status !== 200) throw new Error('Unexpected response while updating.');
   } catch (error: any) {
     console.error('Error during updateData:', error.message);
@@ -41,10 +45,10 @@ export async function updateData(db: string, table: string, data: any): Promise<
   }
 }
 
-export async function deleteTable(db: string, table: string): Promise<void> {
-  if (!db || !table) throw new ValidationError('Database and table are required for delete.');
+export async function deleteTable(dbName: string, tableName: string): Promise<void> {
+  if (!dbName || !tableName) throw new ValidationError('Database and table are required for delete.');
   try {
-    const res = await api.post('/delete', { db, table });
+    const res = await api.delete('/delete', { data: { dbName, tableName } });
     if (res.status !== 200) throw new Error('Unexpected response while deleting table.');
   } catch (error: any) {
     console.error('Error during deleteTable:', error.message);

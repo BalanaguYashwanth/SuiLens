@@ -1,4 +1,4 @@
-export declare function createDatabaseAndTable(db: string, table: string): Promise<void>;
-export declare function insertData(db: string, table: string, data: any): Promise<void>;
-export declare function updateData(db: string, table: string, data: any): Promise<void>;
-export declare function deleteTable(db: string, table: string): Promise<void>;
+export declare function createDatabaseAndTable(dbName: string, tableName: string): Promise<void>;
+export declare function insertData(dbName: string, tableName: string, data: any): Promise<void>;
+export declare function updateData(dbName: string, tableName: string, data: any): Promise<void>;
+export declare function deleteTable(dbName: string, tableName: string): Promise<void>;
