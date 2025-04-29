@@ -11,8 +11,10 @@ import { Chart as ChartJS,
   Title,
   Tooltip,
   Legend } from 'chart.js';
-import { getSqlQueryResults } from "../../common/api.services";
+import { getDatabaseSchema, getSqlQueryResults } from "../../common/api.services";
 import "./Dashboard.scss";
+import { TableSchema } from "../../common/types";
+import SchemaStructure from "../../components/SchemaStructure/SchemaStructure";
 
 ChartJS.register(
   CategoryScale,
@@ -41,13 +43,49 @@ const App: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [sqlQuery, setSqlQuery] = useState<string | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+  const [schema, setSchema] = useState<TableSchema[]>([]);
+
+  const fetchSchema = async () => {
+    // try{
+    //   const response = await getDatabaseSchema(localStorage.getItem('module') as string);
+    //   setSchema(response);
+    // } catch(error) {
+    //   console.error("Error fetching schema:", error);
+    // }
+
+    setSchema(getMockSchema());
+  };
+
+  const getMockSchema = (): TableSchema[] => [
+    {
+      name: "users",
+      columns: [
+        { name: "id", type: "INTEGER", nullable: false, primaryKey: true },
+        { name: "name", type: "VARCHAR(255)", nullable: false, primaryKey: false },
+        { name: "email", type: "VARCHAR(255)", nullable: true, primaryKey: false },
+        { name: "created_at", type: "TIMESTAMP", nullable: false, primaryKey: false }
+      ]
+    },
+    {
+      name: "products",
+      columns: [
+        { name: "id", type: "INTEGER", nullable: false, primaryKey: true },
+        { name: "name", type: "VARCHAR(255)", nullable: false, primaryKey: false },
+        { name: "price", type: "DECIMAL(10,2)", nullable: false, primaryKey: false },
+        { name: "in_stock", type: "BOOLEAN", nullable: false, primaryKey: false }
+      ]
+    }
+  ];
+
+  useEffect(() => {
+    fetchSchema();
+  }, []);
 
   useEffect(() => {
     if (data.length > 0 && columns.length > 0) {
       analyzeDataForCharts();
     }
   }, [data, columns]);
-
   const analyzeDataForCharts = () => {
     const numericColumns = columns.filter(col => {
       if (typeof col.accessor !== 'string') return false;
@@ -104,8 +142,8 @@ const App: React.FC = () => {
         db: localStorage.getItem('module') as string 
       });
 
-      if (dbResponse?.response) {
-        setErrorMsg(dbResponse?.response);
+      if (dbResponse && typeof dbResponse.response === 'string') {
+        setErrorMsg(dbResponse.response);
         setData([]);
         setColumns([]);
         setChartType(null);
@@ -113,25 +151,35 @@ const App: React.FC = () => {
         return;
       }
 
-      const { sql: rows, chartType="", sqlQuery} = dbResponse?.response;
+      if (dbResponse?.response?.sql && Array.isArray(dbResponse.response.sql)) {
+        const rows = dbResponse.response.sql;
+        const chartType = dbResponse.response.chartType || "";
+        const sqlQuery = dbResponse.response.sqlQuery;
 
-      if (Array.isArray(rows) && rows.length > 0) {
-        const cols: Column<RowData>[] = Object.keys(rows[0]).map(key => ({
-          Header: key,
-          accessor: key,
-        }));
-        setColumns(cols);
-        setData(rows);
-        //TODO - Work on chart
-        // setChartType(chartType);
-        setErrorMsg(null);
-        //TODO - Work on getting the output as query
-        // setSqlQuery(sqlQuery);
+        if (rows.length > 0) {
+          const cols: Column<RowData>[] = Object.keys(rows[0]).map(key => ({
+            Header: key,
+            accessor: key,
+          }));
+          setColumns(cols);
+          setData(rows);
+          //TODO - Work on chart
+          // setChartType(chartType);
+          setErrorMsg(null);
+          //TODO - Work on getting the output as query
+          // setSqlQuery(sqlQuery);
+        } else {
+          setColumns([]);
+          setData([]);
+          setChartType(null);
+          setErrorMsg("No data returned from query.");
+          setSqlQuery(null);
+        }
       } else {
         setColumns([]);
         setData([]);
         setChartType(null);
-        setErrorMsg("No data returned from query.");
+        setErrorMsg("Invalid response format.");
         setSqlQuery(null);
       }
     } catch (err) {
@@ -232,11 +280,20 @@ const App: React.FC = () => {
   return (
     <div className="dashboard-container">
       <div className="left-panel">
-        <div className="panel-header">
-          <h2>Query History</h2>
+        <div className="schema-section">
+          <div className="panel-header">
+            <h2>Schema Structure</h2>
+          </div>
+          <SchemaStructure schema={schema} />
         </div>
-        <div className="history-list">
-          {history.map(renderHistoryItem)}
+
+        <div className="history-section">
+          <div className="panel-header">
+            <h2>Query History</h2>
+          </div>
+          <div className="history-list">
+            {history.map(renderHistoryItem)}
+          </div>
         </div>
       </div>
 

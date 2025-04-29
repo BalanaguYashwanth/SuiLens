@@ -50,8 +50,8 @@ export class SuilensClient {
     await updateTable(this.dbName, this.tableName, data);
   }
 
-  async delete(): Promise<void> {
+  async delete(data?: Record<string, any>): Promise<void> {
     this.hasTableDBExists();
-    await deleteTable(this.dbName, this.tableName);
+    await deleteTable(this.dbName, this.tableName, data);
   }
 }

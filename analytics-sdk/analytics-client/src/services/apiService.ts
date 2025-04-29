@@ -42,10 +42,10 @@ export async function updateTable(dbName: string, tableName: string, data: any):
   }
 }
 
-export async function deleteTable(dbName: string, tableName: string): Promise<void> {
+export async function deleteTable(dbName: string, tableName: string, data?: Record<string, any>): Promise<void> {
   if (!dbName || !tableName) throw new ValidationError('Database and table are required for delete.');
   try {
-    const res = await api.delete('/event/delete', { data: { dbName, tableName } });
+    const res = await api.delete('/event/delete', { data: { dbName, tableName, data: data || {} } });
     if (res.status !== 200) throw new Error('Unexpected response while deleting table.');
   } catch (error: any) {
     console.error('Error during deleteTable:', error.message);
