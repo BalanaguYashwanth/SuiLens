@@ -3,9 +3,7 @@ from pathlib import Path
 
 def get_db_connection(db: str) -> sqlite3.Connection:
     try:
-        base_dir = Path(__file__).resolve().parent.parent
-
-        db_dir = base_dir / "app" / "models" / "db"
+        db_dir = (Path(__file__).resolve().parents[3].parent / "db")
         db_dir.mkdir(exist_ok=True, parents=True)
 
         db_path = db_dir / f"{db}.sqlite"

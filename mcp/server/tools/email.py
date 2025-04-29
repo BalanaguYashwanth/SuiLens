@@ -1,95 +1,73 @@
-import mcp.types as types
+import os
+import logging
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
+load_dotenv('.env')
 
-async def email_tools() -> list[types.Tool]:
-    """
-    List available tools.
-    Each tool specifies its arguments using JSON Schema validation.
-    """
-    return [
-        types.Tool(
-            name="search-emails",
-            description="Search emails within a date range and/or with specific keywords",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "start_date": {
-                        "type": "string",
-                        "description": "Start date in YYYY-MM-DD format (optional)",
-                    },
-                    "end_date": {
-                        "type": "string",
-                        "description": "End date in YYYY-MM-DD format (optional)",
-                    },
-                    "keyword": {
-                        "type": "string",
-                        "description": "Keyword to search in email subject and body (optional)",
-                    },
-                    "folder": {
-                        "type": "string",
-                        "description": "Folder to search in ('inbox' or 'sent', defaults to 'inbox')",
-                        "enum": ["inbox", "sent"],
-                    },
-                },
-            },
-        ),
-        types.Tool(
-            name="get-email-content",
-            description="Get the full content of a specific email by its ID",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "email_id": {
-                        "type": "string",
-                        "description": "The ID of the email to retrieve",
-                    },
-                },
-                "required": ["email_id"],
-            },
-        ),
-        types.Tool(
-            name="count-daily-emails",
-            description="Count emails received for each day in a date range",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "start_date": {
-                        "type": "string",
-                        "description": "Start date in YYYY-MM-DD format",
-                    },
-                    "end_date": {
-                        "type": "string",
-                        "description": "End date in YYYY-MM-DD format",
-                    },
-                },
-                "required": ["start_date", "end_date"],
-            },
-        ),
-        types.Tool(
-            name="send-email",
-            description="CONFIRMATION STEP: Actually send the email after user confirms the details. Before calling this, first show the email details to the user for confirmation. Required fields: recipients (to), subject, and content. Optional: CC recipients.",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "to": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "List of recipient email addresses (confirmed)",
-                    },
-                    "subject": {
-                        "type": "string",
-                        "description": "Confirmed email subject",
-                    },
-                    "content": {
-                        "type": "string",
-                        "description": "Confirmed email content",
-                    },
-                    "cc": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "List of CC recipient email addresses (optional, confirmed)",
-                    },
-                },
-                "required": ["to", "subject", "content"],
-            },
-        ),
-    ]
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    filename='email_client.log'
+)
+
+# Email configuration
+EMAIL_CONFIG = {
+    "email": os.getenv("EMAIL_ADDRESS"),
+    "password": os.getenv("EMAIL_APP_PASSWORD"),
+    "imap_server": os.getenv("IMAP_SERVER", "imap.gmail.com"),
+    "smtp_server": os.getenv("SMTP_SERVER", "smtp.gmail.com"),
+    "smtp_port": int(os.getenv("SMTP_PORT", "587"))
+}
+
+async def send_email_async(
+    to_addresses: list[str],
+    subject: str,
+    content: str,
+    cc_addresses: list[str] | None = None
+) -> None:
+    """Asynchronously send an email."""
+    try:
+
+        # Create message
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_CONFIG["email"]
+        msg['To'] = ', '.join(to_addresses)
+        if cc_addresses:
+            msg['Cc'] = ', '.join(cc_addresses)
+        msg['Subject'] = subject
+        
+        # Add body
+        msg.attach(MIMEText(content, 'plain', 'utf-8'))
+        
+        # Connect to SMTP server and send email
+        def send_sync():
+            with smtplib.SMTP(EMAIL_CONFIG["smtp_server"], EMAIL_CONFIG["smtp_port"]) as server:
+                server.set_debuglevel(1)  # Enable debug output
+                logging.debug(f"Connecting to {EMAIL_CONFIG['smtp_server']}:{EMAIL_CONFIG['smtp_port']}")
+                
+                # Start TLS
+                logging.debug("Starting TLS")
+                server.starttls()
+                
+                # Login
+                logging.debug(f"Logging in as {EMAIL_CONFIG['email']}")
+                server.login(EMAIL_CONFIG["email"], EMAIL_CONFIG["password"])
+                
+                # Send email
+                all_recipients = to_addresses + (cc_addresses or [])
+                logging.debug(f"Sending email to: {all_recipients}")
+                result = server.send_message(msg, EMAIL_CONFIG["email"], all_recipients)
+                
+                if result:
+                    # send_message returns a dict of failed recipients
+                    raise Exception(f"Failed to send to some recipients: {result}")
+                
+                logging.debug("Email sent successfully")
+
+        send_sync()
+        return f"successfully sent {msg['To']}"
+    except Exception as e:
+        logging.error(f"Error in send_email_async: {str(e)}")
+        raise

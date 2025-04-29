@@ -1,69 +1,37 @@
-import mcp.types as types
+import sqlite3
+from pathlib import Path
 
-async def sql_tools() -> list[types.Tool]:
-    """List available tools"""
-    return [
-        types.Tool(
-            name="read_query",
-            description="Execute a SELECT query on the SQLite database",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "SELECT SQL query to execute"},
-                },
-                "required": ["query"],
-            },
-        ),
-        types.Tool(
-            name="write_query",
-            description="Execute an INSERT, UPDATE, or DELETE query on the SQLite database",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "SQL query to execute"},
-                },
-                "required": ["query"],
-            },
-        ),
-        types.Tool(
-            name="create_table",
-            description="Create a new table in the SQLite database",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "CREATE TABLE SQL statement"},
-                },
-                "required": ["query"],
-            },
-        ),
-        types.Tool(
-            name="list_tables",
-            description="List all tables in the SQLite database",
-            inputSchema={
-                "type": "object",
-                "properties": {},
-            },
-        ),
-        types.Tool(
-            name="describe_table",
-            description="Get the schema information for a specific table",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "table_name": {"type": "string", "description": "Name of the table to describe"},
-                },
-                "required": ["table_name"],
-            },
-        ),
-        types.Tool(
-            name="append_insight",
-            description="Add a business insight to the memo",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "insight": {"type": "string", "description": "Business insight discovered from data analysis"},
-                },
-                "required": ["insight"],
-            },
-        ),
-    ]
+async def read_query(db: str,query: str) -> str:
+    """Execute a SELECT query on the SQLite database and return results."""
+    try:
+        project_root = Path(__file__).resolve().parents[3]  # `/suilens/`
+        db_dir = project_root / "db"
+        db_dir.mkdir(exist_ok=True, parents=True)  # ensure db folder exists
+        db_path = db_dir / f"{db}.sqlite"
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        results = conn.execute(query).fetchall()
+
+        if not results:
+            return "No results found."
+
+        output = []
+        for row in results:
+            output.append(", ".join(f"{k}: {row[k]}" for k in row.keys()))
+
+        return output
+
+    except Exception as e:
+        return f"Error executing query: {str(e)}"
+
+def get_db_schema(name) -> list:
+    # Define the db directory
+    project_root = Path(__file__).resolve().parents[3]  # `/suilens/`
+    db_dir = project_root / "db"
+    db_dir.mkdir(exist_ok=True, parents=True)  # ensure db folder exists
+    db_path = db_dir / f"{name}.sqlite"
+
+    # Connect using full path
+    conn = sqlite3.connect(str(db_path))
+    rows = conn.execute("SELECT name, sql FROM sqlite_master WHERE type='table'").fetchall()
+    return [{"name": row[0], "schema": row[1]} for row in rows if row[1]]
