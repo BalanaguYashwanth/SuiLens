@@ -100,12 +100,12 @@ const App: React.FC = () => {
 
     try {
       const dbResponse = await getSqlQueryResults({ 
-        text: query, 
-        module: localStorage.getItem('module') as string 
+        query: query, 
+        db: localStorage.getItem('module') as string 
       });
 
-      if (dbResponse.message && dbResponse?.availableTables) {
-        setErrorMsg(dbResponse.message);
+      if (dbResponse?.response) {
+        setErrorMsg(dbResponse?.response);
         setData([]);
         setColumns([]);
         setChartType(null);
@@ -113,7 +113,7 @@ const App: React.FC = () => {
         return;
       }
 
-      const { rows, chartType, sqlQuery} = dbResponse;
+      const { sql: rows, chartType="", sqlQuery} = dbResponse?.response;
 
       if (Array.isArray(rows) && rows.length > 0) {
         const cols: Column<RowData>[] = Object.keys(rows[0]).map(key => ({
@@ -122,9 +122,11 @@ const App: React.FC = () => {
         }));
         setColumns(cols);
         setData(rows);
-        setChartType(chartType);
+        //TODO - Work on chart
+        // setChartType(chartType);
         setErrorMsg(null);
-        setSqlQuery(sqlQuery);
+        //TODO - Work on getting the output as query
+        // setSqlQuery(sqlQuery);
       } else {
         setColumns([]);
         setData([]);

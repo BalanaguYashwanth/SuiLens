@@ -1,4 +1,4 @@
-import { BACKEND_API } from "./env"
+import { BACKEND_API, MCP_CLIENT_API } from "./env"
 import { CreateEvents, GetSqlQueryResults } from "./types";
 
 export const createEvents = async (data: CreateEvents) => {
@@ -11,7 +11,7 @@ export const createEvents = async (data: CreateEvents) => {
   };
   
 export const getSqlQueryResults = async (data: GetSqlQueryResults) => {
-  const response = await fetch(`${BACKEND_API}/query`, {
+  const response = await fetch(`${MCP_CLIENT_API}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),

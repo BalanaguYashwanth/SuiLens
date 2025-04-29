@@ -70,7 +70,7 @@ app.post('/record-events', (req, res)=>{
   return res.status(200).json({status:'started recording events'});
 })
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8002;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

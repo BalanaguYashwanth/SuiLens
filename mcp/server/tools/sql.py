@@ -13,13 +13,9 @@ async def read_query(db: str,query: str) -> str:
         results = conn.execute(query).fetchall()
 
         if not results:
-            return "No results found."
+            return []
 
-        output = []
-        for row in results:
-            output.append(", ".join(f"{k}: {row[k]}" for k in row.keys()))
-
-        return output
+        return [dict(row) for row in results] 
 
     except Exception as e:
         return f"Error executing query: {str(e)}"

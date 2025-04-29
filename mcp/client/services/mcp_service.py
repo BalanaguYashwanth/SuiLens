@@ -112,8 +112,8 @@ class MCPClient:
 
                 if tool_name in ['read_query']:
                     # Extract just the 'text' content
-                    final_text['list'] = [content.text for content in call_tool_response_contents]
-                    sql_output = final_text['list']
+                    final_text['sql'] = [json.loads(content.text) for content in call_tool_response_contents]
+                    sql_output = final_text['sql']
                 else:
                     final_text['text'+ str(index)] = call_tool_result.content
 
