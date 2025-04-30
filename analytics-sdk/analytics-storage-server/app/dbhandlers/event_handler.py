@@ -33,6 +33,10 @@ class EventHandler:
                 conn.close()
                 time.sleep(0.05)
 
+    #TODO - First divide into two parts 
+    #Don't create table after init(), create table after we get event data
+    #First part - If column not exists create it 
+    #Second part - If column exists insert the data
     async def insert_data(self, db: str, table_name: str, data: dict):
         conn = None
         try:
@@ -42,8 +46,10 @@ class EventHandler:
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
             row = cursor.fetchone()
 
+            [first_row] = data.get('data', []) or [{}]
+
             if not row:
-                columns = ", ".join([f"{key} TEXT" for key in data["data"][0].keys()])
+                columns = ", ".join([f"{key} TEXT" for key in first_row.keys()])
                 create_table_query = f"CREATE TABLE {table_name} (primary_id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})"
                 cursor.execute(create_table_query)
             else:
@@ -51,7 +57,7 @@ class EventHandler:
                 existing_columns_info = cursor.fetchall()
                 existing_columns = [col[1] for col in existing_columns_info] 
 
-                for key in data["data"][0].keys():
+                for key in first_row.keys():
                     if key not in existing_columns:
                         alter_query = f"ALTER TABLE {table_name} ADD COLUMN {key} TEXT"
                         cursor.execute(alter_query)
