@@ -12,10 +12,21 @@ $notification-bg: #f0f7ff;
   color: $text-color;
 
   .left-panel {
-    width: 250px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
     border-right: 1px solid $border-color;
     background-color: $secondary-color;
-    overflow-y: auto;
+   
+    .schema-section, .history-section {
+      flex: 1;
+      overflow-y: auto;
+      border-bottom: 1px solid $border-color;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+    }
 
     .panel-header {
       padding: 12px 16px;

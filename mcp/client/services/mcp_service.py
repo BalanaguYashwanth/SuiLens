@@ -29,7 +29,6 @@ class MCPClient:
         if not self.session:
             raise RuntimeError("Session is not initialized. Call initialize() first.")
 
-        
         tools = [
             {
                 "name": t.name,
@@ -71,7 +70,6 @@ class MCPClient:
                 4. If there is any email related query then explicity keep email tools at the end in output array (giving last priority to execute in call tools)
                 5. Before answering, explain your reasoning step-by-step in tags.
                 """
-        
         # Prepare the message to send
         messages = [
             {"role": "user", "content": combined_content}
@@ -97,12 +95,10 @@ class MCPClient:
             elif content.type == "tool_use":
 
                 if content.name == 'send_email_async':
-                    content.input['content'] = str(sql_output)
+                    content.input['content'] = f"{sql_output} \n \n {final_text}"
 
                 tool_name = content.name
                 tool_args = content.input
-
-
 
                 call_tool_result = await self.session.call_tool(tool_name, tool_args)
 
@@ -114,6 +110,11 @@ class MCPClient:
                     # Extract just the 'text' content
                     final_text['sql'] = [json.loads(content.text) for content in call_tool_response_contents]
                     sql_output = final_text['sql']
+                elif tool_name in ['read_user_token_balances']:
+                    call_tool_result = await self.session.call_tool(tool_name, tool_args)
+                    call_tool_response_contents = call_tool_result.content
+                    output = [json.loads(content.text) for content in call_tool_response_contents]
+                    final_text['sui_read_balances'] = output
                 else:
                     final_text['text'+ str(index)] = call_tool_result.content
 

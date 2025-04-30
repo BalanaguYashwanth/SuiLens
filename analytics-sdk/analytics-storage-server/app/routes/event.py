@@ -32,5 +32,5 @@ async def handle_delete(request: Request):
     body = await request.json()
     app = get_app()
 
-    await app.event_service.delete_table(body['dbName'], body['tableName'])
+    await app.event_service.delete_table(body['dbName'], body['tableName'], body["data"])
     return {"success": True, "message": "Table deleted"}

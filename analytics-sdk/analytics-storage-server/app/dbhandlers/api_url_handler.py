@@ -14,7 +14,7 @@ class ApiUrlHandler:
         return self.SessionLocal()
 
     async def get_api_url(self):
-        db_session = self.get_db_session()
+        db_session = self.get_db_connection()
 
         try:
             api_url_entry = db_session.query(ApiUrlModel).first()

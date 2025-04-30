@@ -5,6 +5,7 @@ from starlette.routing import Route, Mount
 from tools.weather import get_alerts
 from tools.sql import get_db_schema, read_query
 from tools.email import send_email_async
+from tools.sui import read_user_token_balances
 
 class MCPServer:
     def __init__(self, mcp):
@@ -14,6 +15,7 @@ class MCPServer:
         self.mcp.tool()(get_alerts)
         self.mcp.tool()(read_query)
         self.mcp.tool()(send_email_async)
+        self.mcp.tool()(read_user_token_balances)
 
     def register_resources(self) -> None:
        self.mcp.resource("schema://db//{name}")(get_db_schema)
