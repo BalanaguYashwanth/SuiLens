@@ -1,0 +1,37 @@
+.packages-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eaeaea;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+  
+      p {
+        margin: 0;
+        font-size: 1.2rem;
+        color: #718096;
+  
+        &.hint {
+          margin-top: 1rem;
+          font-size: 1rem;
+          color: #a0aec0;
+        }
+      }
+    }
+  
+    .package-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+  }

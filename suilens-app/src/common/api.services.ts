@@ -19,28 +19,37 @@ export const getSqlQueryResults = async (data: GetSqlQueryResults) => {
   return response.json();
 }
 
-export const createUser = async (email: string, name: string) => {
+export const createUser = async (token: string) => {
   const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/user/create`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, name }),
+    headers: { 
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    credentials: 'include'
   });
   return res.json();
 };
 
-export const getProjectsByEmail = async (email: string) => {
-  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/project/get/${email}`, {
+export const getProjectsByEmail = async () => {
+  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/project/get`, {
     method: "GET",
-    headers: { "Content-Type": "application/json" }
+    headers: { 
+      "Content-Type": "application/json"
+    },
+    credentials: 'include'
   });
   return res.json();
 };
 
-export const createProject = async (email: string, projectName: string, projectDescription: string) => {
+export const createProject = async (projectName: string, projectDescription: string) => {
   const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/project/create`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, projectName, projectDescription }),
+    headers: { 
+      "Content-Type": "application/json"
+    },
+    credentials: 'include',
+    body: JSON.stringify({ projectName, projectDescription }),
   });
   return res.json();
 };
@@ -55,13 +64,31 @@ export const getProjectUrl = async () => {
 
 export const getDatabaseSchema = async (dbName: string): Promise<TableSchema[]> => {
   try {
-    const response = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/${dbName}`, {
+    const response = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/event/schema/${dbName}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" }
     });
-    return response.json();
+    const data = await response.json();
+    return data.schema;
   } catch (error) {
     console.error('Error fetching database schema:', error);
     throw error;
   }
+};
+
+export const createPackage = async (projectId: string, packageId: string, moduleName: string) => {
+  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/package/create`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ projectId, packageId, moduleName }),
+  });
+  return res.json();
+};
+
+export const getPackagesByProject = async (projectId: string) => {
+  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/package/get/${projectId}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.json();
 };

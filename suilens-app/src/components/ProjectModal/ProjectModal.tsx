@@ -3,25 +3,25 @@ import { createProject, getProjectUrl } from '../../common/api.services';
 import ProjectForm from '../ProjectForm/ProjectForm';
 import Loader from '../Loader/Loader';
 import './ProjectModal.scss';
+import { useNavigate } from 'react-router-dom';
+import { ProjectProp } from '../../common/types';
 
 const ProjectModal = ({ onClose, setProjects }: any) => {
   const [responseData, setResponseData] = useState<{ url: string; id: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleFormSubmit = async (name: string, desc: string) => {
     setIsLoading(true);
     try{
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const email = user.email;
-
-      const createResponse = await createProject(email, name, desc);
+      const createResponse = await createProject(name, desc);
       const projectId = createResponse.project_id;
 
       const urlResponse = await getProjectUrl();
       const url = urlResponse.api_url;
 
       setResponseData({ url, id: projectId });
-      setProjects((prev: string[]) => [...prev, name]);
+      setProjects((prev: ProjectProp[]) => [...prev, { id: projectId, name }]);
     } catch (error) {
       console.error("Error creating project:", error);
     } finally {
@@ -31,7 +31,9 @@ const ProjectModal = ({ onClose, setProjects }: any) => {
 
   const handleOkay = () => {
     onClose();
-    window.location.href = '/home';
+    if (responseData) {
+      navigate(`/projects/${responseData.id}/home`);
+    }
   };
 
   if (isLoading) return (

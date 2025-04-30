@@ -19,7 +19,6 @@ class UserHandler:
             new_user = UserModel(email=email, name=name)
             db_session.add(new_user)
             db_session.commit()
-            db_session.refresh(new_user)
             return new_user
         except Exception as e:
             db_session.rollback()

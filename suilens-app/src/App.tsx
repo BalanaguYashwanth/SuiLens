@@ -10,9 +10,9 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/project" element={<Project />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/projects" element={<Project />} />
+        <Route path="/projects/:projectId/home" element={<Home />} />
+        <Route path="/dashboard/:packageId" element={<Dashboard />} />
       </Routes>
     </Router>
   );

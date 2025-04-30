@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
 import { createUser } from '../../common/api.services';
 import Loader from '../../components/Loader/Loader';
 import './Login.scss';
@@ -13,12 +12,12 @@ const Login = () => {
   const onSuccess = async (credentialResponse: any) => {
     setIsLoading(true);
     try{
-      const decodedToken: any = jwtDecode(credentialResponse.credential);
-      const { email, name } = decodedToken;
+      const token = credentialResponse.credential;
 
-      localStorage.setItem('user', JSON.stringify({ email, name }));
-      await createUser(email, name);
-      navigate('/project');
+      document.cookie = `auth_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
+
+      await createUser(token);
+      navigate('/projects');
     } catch (error) {
       console.error('Login error:', error);
     } finally {

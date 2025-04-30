@@ -34,3 +34,9 @@ async def handle_delete(request: Request):
 
     await app.event_service.delete_table(body['dbName'], body['tableName'], body["data"])
     return {"success": True, "message": "Table deleted"}
+
+@event_router.get("/schema/{db_name}")
+async def get_schema(db_name: str):
+    app = get_app()
+    schema = await app.event_service.get_database_schema(db_name)
+    return {"success": True, "schema": schema}

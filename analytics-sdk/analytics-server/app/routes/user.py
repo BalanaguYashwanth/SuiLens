@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
+from typing import Dict
 
 from app.utils.app_utils import get_app
+from app.middleware.auth_middleware import get_user_from_token 
 
 user_router = APIRouter(prefix="/user", tags=["user_router"])
 
 @user_router.post("/create")
-async def create_user(request: Request):
-    body = await request.json()
+async def create_user(request: Request, user_data: Dict = Depends(get_user_from_token)):
     app = get_app()
 
-    email = body["email"]
-    name = body["name"]
+    email = user_data["email"]
+    name = user_data["name"]
 
     try:
         user = app.user_service.create_user(email, name)
