@@ -44,38 +44,17 @@ const App: React.FC = () => {
   const [sqlQuery, setSqlQuery] = useState<string | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
   const [schema, setSchema] = useState<TableSchema[]>([]);
+  const [logs, setLogs] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<'results' | 'console'>('results');
 
   const fetchSchema = async () => {
-    // try{
-    //   const response = await getDatabaseSchema(localStorage.getItem('module') as string);
-    //   setSchema(response);
-    // } catch(error) {
-    //   console.error("Error fetching schema:", error);
-    // }
-
-    setSchema(getMockSchema());
-  };
-
-  const getMockSchema = (): TableSchema[] => [
-    {
-      name: "users",
-      columns: [
-        { name: "id", type: "INTEGER", nullable: false, primaryKey: true },
-        { name: "name", type: "VARCHAR(255)", nullable: false, primaryKey: false },
-        { name: "email", type: "VARCHAR(255)", nullable: true, primaryKey: false },
-        { name: "created_at", type: "TIMESTAMP", nullable: false, primaryKey: false }
-      ]
-    },
-    {
-      name: "products",
-      columns: [
-        { name: "id", type: "INTEGER", nullable: false, primaryKey: true },
-        { name: "name", type: "VARCHAR(255)", nullable: false, primaryKey: false },
-        { name: "price", type: "DECIMAL(10,2)", nullable: false, primaryKey: false },
-        { name: "in_stock", type: "BOOLEAN", nullable: false, primaryKey: false }
-      ]
+    try{
+      const response = await getDatabaseSchema(localStorage.getItem('module') as string);
+      setSchema(response);
+    } catch(error) {
+      console.error("Error fetching schema:", error);
     }
-  ];
+  };
 
   useEffect(() => {
     fetchSchema();
@@ -86,6 +65,7 @@ const App: React.FC = () => {
       analyzeDataForCharts();
     }
   }, [data, columns]);
+
   const analyzeDataForCharts = () => {
     const numericColumns = columns.filter(col => {
       if (typeof col.accessor !== 'string') return false;
@@ -128,7 +108,13 @@ const App: React.FC = () => {
     }
   };
 
+  const addLog = (message: string) => {
+    const timestamp = new Date().toISOString();
+    setLogs(prev => [`[${timestamp}] ${message}`, ...prev].slice(0, 100));
+  };
+
   const fetchData = async () => {
+    addLog(`Executing query: ${query}`);
     const newHistoryItem: QueryHistoryItem = {
       id: history.length + 1,
       query,
@@ -346,47 +332,80 @@ const App: React.FC = () => {
           {/* Table Panel (Left) */}
           <div className="table-panel">
             <div className="panel-header">
-              <h3>Query Results</h3>
-              {data.length > 0 && (
+              <div className="tab-selector">
+                <button
+                  className={`tab-btn ${activeTab === 'results' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('results')}
+                >
+                  Query Results
+                </button>
+                <button
+                  className={`tab-btn ${activeTab === 'console' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('console')}
+                >
+                  Console
+                </button>
+              </div>
+              {activeTab === 'results' && data.length > 0 && (
                 <span className="row-count">{data.length} rows</span>
               )}
             </div>
-            <div className="table-container">
-              {data.length > 0 ? (
-                <table {...tableInstance.getTableProps()} className="data-table">
-                  <thead>
-                    {tableInstance.headerGroups.map((headerGroup: HeaderGroup, index) => (
-                      <tr {...headerGroup.getHeaderGroupProps()} key={`header-${index}`}>
-                        {headerGroup.headers.map((column) => (
-                          <th {...column.getHeaderProps()} className="table-header">
-                            {column.render("Header")}
-                          </th>
+            <div className="panel-content">
+              {activeTab === 'results' ? (
+                <div className="table-container">
+                  {data.length > 0 ? (
+                    <table {...tableInstance.getTableProps()} className="data-table">
+                      <thead>
+                        {tableInstance.headerGroups.map((headerGroup: HeaderGroup, index) => (
+                          <tr {...headerGroup.getHeaderGroupProps()} key={`header-${index}`}>
+                            {headerGroup.headers.map((column) => (
+                              <th {...column.getHeaderProps()} className="table-header">
+                                {column.render("Header")}
+                              </th>
+                            ))}
+                          </tr>
                         ))}
-                      </tr>
-                    ))}
-                  </thead>
-                  <tbody {...tableInstance.getTableBodyProps()}>
-                    {tableInstance.rows.map((row) => {
-                      tableInstance.prepareRow(row);
-                      return (
-                        <tr {...row.getRowProps()}>
-                          {row.cells.map((cell) => (
-                            <td {...cell.getCellProps()} className="table-cell">
-                              {cell.render("Cell")}
-                            </td>
-                          ))}
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody {...tableInstance.getTableBodyProps()}>
+                        {tableInstance.rows.map((row) => {
+                          tableInstance.prepareRow(row);
+                          return (
+                            <tr {...row.getRowProps()}>
+                              {row.cells.map((cell) => (
+                                <td {...cell.getCellProps()} className="table-cell">
+                                  {cell.render("Cell")}
+                                </td>
+                              ))}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                ) : (     
+                  <div className="empty-table">
+                    <p>No data to display. Run a query to see results.</p>
+                  </div>
+                )}  
+              </div>
               ) : (
-                <div className="empty-table">
-                  <p>No data to display. Run a query to see results.</p>
+                <div className="console-container">
+                  {logs.length > 0 ? (
+                    <div className="console-logs">
+                      {logs.map((log, index) => (
+                        <div key={index} className="log-entry">
+                          {log}
+                        </div>
+                      ))}
+                    </div>
+                ) : (
+                  <div className="empty-console">
+                    <p>No logs available. Actions will appear here.</p>
+                  </div>
+                )}
                 </div>
               )}
+              </div> 
             </div>
-          </div>
 
           {/* Chart Panel (Right) */}
           <div className="chart-panel">

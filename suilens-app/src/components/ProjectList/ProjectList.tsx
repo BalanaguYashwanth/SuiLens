@@ -13,8 +13,11 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects }) => {
         </div>
       ) : (
         <div className="project-grid">
-          {projects.map((project, index) => (
-            <ProjectCard key={index} project={project} />
+          {projects.map((project) => (
+            <ProjectCard 
+              key={project.id} 
+              project={project}
+            />
           ))}
         </div>
       )}

@@ -1,15 +1,17 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
+from typing import Dict
+from app.middleware.auth_middleware import get_user_from_token
 
 from app.utils.app_utils import get_app
 
 project_router = APIRouter(prefix="/project", tags=["project_router"])
 
 @project_router.post("/create")
-async def create_project(request: Request):
+async def create_project(request: Request,  user_data: Dict = Depends(get_user_from_token)):
     body = await request.json()
     app = get_app()
 
-    email = body["email"]
+    email = user_data["email"]
     project_name = body["projectName"]
     project_description = body["projectDescription"]
 
@@ -19,9 +21,10 @@ async def create_project(request: Request):
     except Exception as e:
         return {"success": False, "message": str(e)}
 
-@project_router.get("/get/{email}")
-async def get_projects_by_user(email: str):
+@project_router.get("/get")
+async def get_projects_by_user(user_data: Dict = Depends(get_user_from_token)):
     app = get_app()
+    email = user_data["email"]
 
     try:
         projects = app.project_service.get_projects_by_user(email)

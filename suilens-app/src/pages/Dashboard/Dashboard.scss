@@ -15,7 +15,7 @@ $notification-bg: #f0f7ff;
     width: 300px;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid $border-color;
+    border-right: 1px solid $border-color;  
     background-color: $secondary-color;
    
     .schema-section, .history-section {
@@ -446,5 +446,76 @@ $notification-bg: #f0f7ff;
         transform: scale(1);
       }
     }
+  }
+}
+
+// Add to your existing SCSS
+.tab-selector {
+  display: flex;
+  gap: 8px;
+  
+  .tab-btn {
+    padding: 4px 12px;
+    background-color: $secondary-color;
+    border: 1px solid $border-color;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    font-size: 13px;
+    margin-bottom: -1px;
+    border-bottom: none;
+    position: relative;
+    z-index: 1;
+    
+    &:hover {
+      background-color: darken($secondary-color, 3%);
+    }
+    
+    &.active {
+      background-color: white;
+      border-bottom: 1px solid white;
+      color: $primary-color;
+      font-weight: 600;
+    }
+  }
+}
+
+.panel-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.console-container {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid $border-color;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  
+  .console-logs {
+    padding: 8px;
+    
+    .log-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid #eee;
+      white-space: pre-wrap;
+      word-break: break-word;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+  
+  .empty-console {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    font-size: 14px;
   }
 }
