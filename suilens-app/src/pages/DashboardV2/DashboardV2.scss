@@ -1,0 +1,56 @@
+.analytics-graph {
+  background: #f9fafc; // light, modern background
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+
+  .recharts-tooltip-wrapper {
+    background-color: #ffffff !important;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    color: #333 !important;
+  }
+
+  .recharts-default-legend {
+    color: #444;
+    font-weight: 500;
+  }
+
+  .recharts-cartesian-grid line {
+    stroke: rgba(0, 0, 0, 0.06);
+  }
+
+  .recharts-xAxis text,
+  .recharts-yAxis text {
+    fill: #666;
+    font-size: 12px;
+  }
+
+  .individual-graph-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+
+    // Optional: Smooth out last row full-width appearance
+    .graph-span-full {
+      grid-column: span 2; // Try to span 2 cols
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr; // Stack on small screens
+
+      .graph-span-full {
+        grid-column: span 1;
+      }
+    }
+  }
+
+  .individual-graph {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+}

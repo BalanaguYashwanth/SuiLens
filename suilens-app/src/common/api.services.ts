@@ -92,3 +92,11 @@ export const getPackagesByProject = async (projectId: string) => {
   });
   return res.json();
 };
+
+export const getPackageAnalytics = async (packageId: string, batch_size=100) => {
+  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/analytics?package_address=${packageId}&batch_size=${batch_size}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.json();
+}
