@@ -12,13 +12,20 @@ def get_payload(method, params):
 
 
 async def read_user_token_balances(address_list: list[str]):
+    output = []
     try:
-        payload = get_payload("suix_getAllCoins", params=address_list)
-        headers = {
-            "Content-Type": "application/json"
-        }
-        async with httpx.AsyncClient() as client:
-            response = await client.post(SUI_RPC_URL, json=payload, headers=headers)
-            return response.json()
+        for address in address_list:
+            payload = get_payload("suix_getAllCoins", params=[address])
+            headers = {
+                "Content-Type": "application/json"
+            }
+            async with httpx.AsyncClient() as client:
+                response = await client.post(SUI_RPC_URL, json=payload, headers=headers)
+                user_balance_response = response.json()
+                if user_balance_response.get('result'):
+                    balance = user_balance_response['result']['data']
+                    for b in balance:
+                        output.append(b)
+        return output  
     except Exception as e:
         return f'Error executing {str(e)}'

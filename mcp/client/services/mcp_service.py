@@ -66,6 +66,7 @@ class MCPClient:
                 \n\nUser Query: {query}
 
                 IMPORTANT INSTRUCTIONS:
+                1. This query is running for sqlite db, based on it give me result
                 1. If the database name or any table mentioned in the user query does not exist in the schema, then don't call any sql related tools.
                 2. If table exists in schema then For the query, identify ALL tasks requested by the user.
                 3. For EACH task, use the appropriate tool from available tools:

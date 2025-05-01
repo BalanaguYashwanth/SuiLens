@@ -1,6 +1,7 @@
 import json
 
 async def multi_chaining(index, final_text, contents, session):
+
     sql_output = final_text.get('sql') or None
 
     for content in contents:
@@ -21,9 +22,7 @@ async def multi_chaining(index, final_text, contents, session):
             final_text['text'+ str(index)] = call_tool_response_contents
 
             if (not sql_output) and tool_name in ['read_query']:
-                # Extract just the 'text' content
                 final_text['sql'] = [json.loads(content.text) for content in call_tool_response_contents]
-
                 return final_text, index
 
             elif tool_name in ['read_user_token_balances']:
