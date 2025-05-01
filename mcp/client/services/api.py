@@ -8,7 +8,7 @@ load_dotenv()
 
 anthropic = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-def get_llm_response(messages, tools):
+def fetch_llm_response(messages, tools):
     raw_response = anthropic.messages.create(
         model="claude-3-5-sonnet-20241022",
         max_tokens=1000,

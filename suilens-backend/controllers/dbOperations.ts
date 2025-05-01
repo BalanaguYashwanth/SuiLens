@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import Database from 'better-sqlite3';
 
 type DB_OPERATIONS = {
@@ -9,7 +10,8 @@ type DB_OPERATIONS = {
 };
 
 export const dbOperations = ({ dbName, operation, data, tableName }: DB_OPERATIONS) => {
-  const dbPath = `./db/${dbName}.sqlite`;
+  const DB_BASE_PATH = path.resolve(__dirname, '../../db');
+  const dbPath = path.join(DB_BASE_PATH, `${dbName}.sqlite`);
   if (!fs.existsSync('./db')) fs.mkdirSync('./db');
   const db = new Database(dbPath);
 
