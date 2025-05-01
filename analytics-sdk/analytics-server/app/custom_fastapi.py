@@ -4,6 +4,7 @@ class CustmFastAPI(FastAPI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        from app.services.analytics_service import AnalyticsService
         from app.services.event_service import EventService
         from app.services.api_url_service import ApiUrlService
         from app.services.user_service import UserService
@@ -15,6 +16,7 @@ class CustmFastAPI(FastAPI):
         from app.dbhandlers.project_handler import ProjectHandler
         from app.dbhandlers.package_handler import PackageHandler
         
+        self.analytics_service = AnalyticsService()
         self.event_service = EventService()
         self.api_url_service = ApiUrlService()
         self.user_service = UserService()
