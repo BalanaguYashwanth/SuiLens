@@ -1,16 +1,15 @@
 .project-page {
-  padding: 3rem 2rem;
-  background-color: white;
-  min-height: 100vh;
-  max-width: 1400px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* full viewport height */
+  padding: 2rem;
+  background: linear-gradient(135deg, #f0f4f8, #e6ecf3); // Premium gradient
 
   .project-header {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin-bottom: 3rem;
-    padding: 0 1rem;
+    margin-bottom: 1.5rem;
 
     button {
       padding: 12px 24px;
@@ -41,6 +40,23 @@
         content: "+";
         font-size: 1.2rem;
       }
+    }
+  }
+
+  .project-header button {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6); // Premium purple gradient
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
     }
   }
 }

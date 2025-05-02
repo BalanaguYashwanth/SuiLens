@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { createProject, getProjectUrl } from '../../common/api.services';
 import ProjectForm from '../ProjectForm/ProjectForm';
 import Loader from '../Loader/Loader';
-import './ProjectModal.scss';
 import { useNavigate } from 'react-router-dom';
 import { ProjectProp } from '../../common/types';
+import './ProjectModal.scss';
 
 const ProjectModal = ({ onClose, setProjects }: any) => {
   const [responseData, setResponseData] = useState<{ url: string; id: string } | null>(null);
@@ -59,6 +59,13 @@ const ProjectModal = ({ onClose, setProjects }: any) => {
             data={responseData || undefined}
           />
 
+        </div>
+       <hr />
+       <div className="modal-content">
+          <h2> Track Onchain </h2>
+
+          <input placeholder='package id'/>
+          <input placeholder='name'/>
           {responseData && (
             <button className="modal-action-button" onClick={handleOkay}>
               Okay

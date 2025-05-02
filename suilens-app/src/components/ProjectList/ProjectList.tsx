@@ -18,6 +18,7 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects }) => {
               key={project.id} 
               project={project}
             />
+            
           ))}
         </div>
       )}

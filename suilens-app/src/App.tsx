@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Login from './pages/Login/Login';
 import Project from './pages/Project/Project';
-import Home from './pages/Home/Home';
 import Dashboard from './pages/Dashboard/Dashboard';
 import DashboardV2 from './pages/DashboardV2/DashboardV2';
 
@@ -14,7 +13,6 @@ function App() {
         <Route path="/dashboard-v2" element={<DashboardV2 />} />
         <Route path="/" element={<Login />} />
         <Route path="/projects" element={<Project />} />
-        <Route path="/projects/:projectId/home" element={<Home />} />
         {/* #TODO - make this dashboard as editor */}
         <Route path="/dashboard/:packageId" element={<Dashboard />} />
       </Routes>
