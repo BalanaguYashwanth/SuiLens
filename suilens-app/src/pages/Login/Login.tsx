@@ -11,11 +11,9 @@ const Login = () => {
 
   const onSuccess = async (credentialResponse: any) => {
     setIsLoading(true);
-    try{
+    try {
       const token = credentialResponse.credential;
-
       document.cookie = `auth_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
-
       await createUser(token);
       navigate('/home');
     } catch (error) {
@@ -33,16 +31,17 @@ const Login = () => {
 
   return (
     <div className="login-page">
-      <div className="login-container">
-        <div className="login-box">
-          <h2>Login to Your Account</h2>
-          <p className="login-subtitle">Access your projects by signing in with Google</p>
-          <div className="google-login">
-            <GoogleLogin onSuccess={onSuccess} onError={onError} />
-          </div>
+    <div className="login-container">
+      <div className="login-card">
+        <h1 className="login-title">Welcome Back</h1>
+        <p className="login-subtitle">Use your Google account to sign in</p>
+        <div className="google-button-wrapper">
+          <GoogleLogin onSuccess={onSuccess} onError={onError} />
         </div>
       </div>
     </div>
+  </div>
+  
   );
 };
 

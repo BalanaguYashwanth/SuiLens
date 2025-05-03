@@ -99,6 +99,7 @@ class MCPClient:
         final_text = {}
         index = 1
         final_response, latest_index = await multi_chaining(index, final_text, contents=response.content, session=self.session)
+
         #TODO - Seperate move below if condition to seperate arr
         if final_response['sql'] or len(final_response['sql']):
             json_str = json.dumps(final_text['sql'])
@@ -120,8 +121,8 @@ class MCPClient:
             response = await self.get_latest_llm_response(tools, prompt=tools_prompt)
             if not response:
                 return None
-            final_response = await multi_chaining(latest_index, final_response, contents=response.content, session=self.session)
-            
+            final_response, latest_index = await multi_chaining(latest_index, final_response, contents=response.content, session=self.session)
+
         return final_response
 
     async def cleanup(self):

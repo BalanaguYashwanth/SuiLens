@@ -96,8 +96,8 @@ const QueryEditor: React.FC = () => {
         datasets: [{
           label: firstNumericCol,
           data: data.map(row => parseFloat(row[firstNumericCol])),
-          backgroundColor: '#2d5f8b',
-          borderColor: '#2d5f8b',
+          backgroundColor: '#374151',
+          borderColor: '#111827',
           borderWidth: 1
         }]
       });
@@ -326,9 +326,7 @@ const QueryEditor: React.FC = () => {
           </div>
         )}
     
-        {/* Results Section (Bottom) - Split View */}
         <div className="results-section">
-          {/* Table Panel (Left) */}
           <div className="table-panel">
             <div className="panel-header">
               <div className="tab-selector">
