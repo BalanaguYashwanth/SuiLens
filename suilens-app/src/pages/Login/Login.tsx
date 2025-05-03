@@ -17,7 +17,7 @@ const Login = () => {
       document.cookie = `auth_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
 
       await createUser(token);
-      navigate('/projects');
+      navigate('/home');
     } catch (error) {
       console.error('Login error:', error);
     } finally {

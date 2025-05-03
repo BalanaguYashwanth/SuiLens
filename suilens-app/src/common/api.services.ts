@@ -1,5 +1,5 @@
 import { BACKEND_API, MCP_CLIENT_API, SUILENS_ANALYTICS_BACKEND_API } from "./env"
-import { CreateEvents, GetSqlQueryResults, TableSchema } from "./types";
+import { CreateEvents, CreatePackageProps, GetSqlQueryResults, TableSchema } from "./types";
 
 export const createEvents = async (data: CreateEvents) => {
     const response = await fetch(`${BACKEND_API}/record-events`, {
@@ -76,11 +76,11 @@ export const getDatabaseSchema = async (dbName: string): Promise<TableSchema[]> 
   }
 };
 
-export const createPackage = async (projectId: string, packageId: string, moduleName: string) => {
+export const createPackage = async ({packageAddress, packageName}: CreatePackageProps) => {
   const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/package/create`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ projectId, packageId, moduleName }),
+    body: JSON.stringify({ packageAddress, packageName }),
   });
   return res.json();
 };
@@ -100,3 +100,5 @@ export const getPackageAnalytics = async (packageId: string, batch_size=100) => 
   });
   return res.json();
 }
+
+export type TimelineData = Record<string, Record<string, number>>;

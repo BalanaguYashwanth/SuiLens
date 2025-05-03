@@ -1,10 +1,14 @@
-.projects-container {
+.package-container {
     flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     border: 1px solid #d9d8d8;
     padding: 2rem;
+    height: 100vh;
 
   .empty-state {
     text-align: center;
@@ -23,7 +27,7 @@
     }
   }
 
-  .project-grid {
+  .package-grid {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
