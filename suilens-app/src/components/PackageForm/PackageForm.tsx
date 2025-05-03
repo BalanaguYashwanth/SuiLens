@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PackageFormProps } from '../../common/types';
-import { createPackage } from '../../common/api.services';
 import { PAGE_ROUTES } from '../../common/constant';
-import './PackageForm.scss';
 import Loader from '../Loader/Loader';
+import './PackageForm.scss';
 
 const PackageForm: React.FC<PackageFormProps> = () => {
   const naviagate = useNavigate()

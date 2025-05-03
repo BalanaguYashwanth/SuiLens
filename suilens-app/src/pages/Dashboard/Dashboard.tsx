@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { getPackageAnalytics, TimelineData } from "../../common/api.services";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChartLine, faExplosion, faDatabase} from '@fortawesome/free-solid-svg-icons'
 import {
     LineChart,
     Line,
@@ -15,11 +13,8 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { getColor, transformPackageData } from "../../common/helpers";
 import FunctionGraph from "../../components/FunctionGraph/FunctionGraph";
-import { PAGE_ROUTES } from "../../common/constant";
+import { GOOGLE_COLRS } from "../../common/color";
 import "./Dashboard.scss";
-
-const googleColors = ["#4285F4", "#DB4437", "#F4B400", "#0F9D58", "#AB47BC"];
-const iconColor = "#202124"
 
 const Dashboard = () => {
     const navigate = useNavigate()
@@ -28,10 +23,6 @@ const Dashboard = () => {
     const [functionNames, setFunctionNames] = useState<string[]>([]);
     // #TODO - timeline should use in graph
     const [originalTimeline, setOriginalTimeline] = useState<TimelineData>({});
-
-    const navigateEditor = () => {
-        navigate(`${PAGE_ROUTES.QUERY_EDITOR}/${packageAddress}`)
-    }
 
     const fetchAnalytics = async (packageAddress: string) => {
         if (packageAddress) {
@@ -56,12 +47,6 @@ const Dashboard = () => {
     }, [packageAddress]);
 
     return (
-        <div className="dashboard-wrapper">
-            <aside className="sidebar">
-                <div className="logo"><FontAwesomeIcon icon={faExplosion} color={iconColor} size="lg" /> </div>
-                <div className="nav-link active"><FontAwesomeIcon icon={faChartLine} color={iconColor} size="lg" /></div>
-                <div className="nav-link" onClick={navigateEditor}><FontAwesomeIcon icon={faDatabase} color={iconColor} size="lg" /></div>
-            </aside>
 
             <div className="content">
 
@@ -116,7 +101,7 @@ const Dashboard = () => {
                                         <FunctionGraph
                                             data={individualData}
                                             functionName={fn}
-                                            color={googleColors[i % googleColors.length]}
+                                            color={GOOGLE_COLRS[i % GOOGLE_COLRS.length]}
                                         />
                                     </div>
                                 );
@@ -125,7 +110,6 @@ const Dashboard = () => {
                     </section>}
                 </main>
             </div>
-        </div>
     );
 };
 

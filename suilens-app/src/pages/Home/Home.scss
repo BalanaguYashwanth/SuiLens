@@ -45,7 +45,7 @@
 
   .home-header button {
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(90deg, #7b61ff, #b16dff); // Premium purple gradient
+    background:var(--color-black-300); // Premium purple gradient
     color: white;
     border: none;
     border-radius: 9999px;

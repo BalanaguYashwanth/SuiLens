@@ -4,6 +4,7 @@ import Home from './pages/Home/Home';
 import QueryEditor from './pages/QueryEditor/QueryEditor';
 import Dashboard from './pages/Dashboard/Dashboard';
 import { PAGE_ROUTES } from './common/constant';
+import Layout from './components/Layout/Layout';
 import './App.css';
 
 function App() {
@@ -11,10 +12,12 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path={`${DASHBOARD}/:packageAddress`} element={<Dashboard />} />
-        <Route path="/" element={<Login />} />
         <Route path={HOME} element={<Home />} />
-        <Route path={`${QUERY_EDITOR}/:packageAddress`} element={<QueryEditor />} />
+        <Route path="/" element={<Login />} />
+        <Route element={<Layout />} >
+          <Route path={`${DASHBOARD}/:packageAddress`} element={<Dashboard />} />  
+          <Route path={`${QUERY_EDITOR}/:packageAddress`} element={<QueryEditor />} />
+        </Route>
       </Routes>
     </Router>
   );

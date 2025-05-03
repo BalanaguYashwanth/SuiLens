@@ -284,7 +284,6 @@ const QueryEditor: React.FC = () => {
       </div>
 
       <div className="right-panel">
-        {/* Query Editor Section (Top) */}
         <div className="query-section">
           <div className="query-header">
             <h3>Query Editor</h3>

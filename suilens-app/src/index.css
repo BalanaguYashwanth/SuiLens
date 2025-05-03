@@ -26,4 +26,7 @@ code {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* primary color */
+  --color-black-300: #202124;
 }
