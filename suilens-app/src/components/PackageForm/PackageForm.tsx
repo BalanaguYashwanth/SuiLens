@@ -15,7 +15,7 @@ const PackageForm: React.FC<PackageFormProps> = () => {
   const handleSubmit = async () => {
     try {
       setIsLoading(true)
-
+      //TODO - Add request to the backend
       // await createPackage({packageAddress, packageName})
       setTimeout(() => {
         setIsLoading(false)

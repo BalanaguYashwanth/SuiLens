@@ -3,17 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { PackageCardProps } from '../../common/types';
 import './PackageCard.scss'; 
 
-const PackageCard: React.FC<PackageCardProps> = ({ package: pkg }) => {
+const PackageCard: React.FC<PackageCardProps> = ({ pkg }: PackageCardProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/dashboard/${pkg.id}`);
+    navigate(`/dashboard/${pkg.packageAddress}`);
   };
 
   return (
     <div className="package-card" onClick={handleClick}>
-      <div className='package-name'>{pkg.name}</div>
-      <div className='package-module'>{pkg.module}</div>
+      <div className='package-name'>{pkg.packageName}</div>
+      <div className='package-module'>{`${pkg.packageAddress.slice(0,5)}...${pkg.packageAddress.slice(-3)}`}</div>
     </div>  
   )
 };

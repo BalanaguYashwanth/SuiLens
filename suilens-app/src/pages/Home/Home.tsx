@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import ProjectModal from '../../components/PackageModal/PackageModal';
+import PackageModal from '../../components/PackageModal/PackageModal';
 import Packages from '../../components/Packages/Packages';
 import './Home.scss';
 
@@ -13,7 +13,7 @@ const Home = () => {
       </div>
       <Packages />
       {isModalVisible && (
-        <ProjectModal />
+        <PackageModal />
       )}
     </main>
   );

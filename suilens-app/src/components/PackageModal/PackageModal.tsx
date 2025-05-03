@@ -1,7 +1,7 @@
 import PackageForm from '../PackageForm/PackageForm';
 import './PackageModal.scss';
 
-const PackageModal = ({ onClose }: any) => {
+const PackageModal = () => {
 
   return (
     <div className="modal-overlay">

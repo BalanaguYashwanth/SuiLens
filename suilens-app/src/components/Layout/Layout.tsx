@@ -15,7 +15,7 @@ const Layout = () => {
   const isHome = location.pathname.includes("home");
 
   return (
-    <div className="dashboard-wrapper">
+    <div className="layout-wrapper">
       <aside className="sidebar">
         <div className="logo">
           <FontAwesomeIcon icon={faExplosion} color={COLORS["BLACK-300"]} size="lg" />

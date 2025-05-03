@@ -53,13 +53,12 @@ export interface SchemaStructureProps {
 }
 
 export interface Package {
-  id: string;
-  name: string;
-  module: string;
+  packageAddress: string;
+  packageName: string;
 }
 
 export interface PackageCardProps {
-  package: Package;
+  pkg: Package;
 }
 
 export interface PackageFormProps {
