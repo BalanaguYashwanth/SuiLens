@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useTable, Column, HeaderGroup } from "react-table";
-import { Bar, Pie, Line,  } from "react-chartjs-2";
-import { Chart as ChartJS,
+import { Bar, Pie, Line, } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
@@ -10,10 +11,12 @@ import { Chart as ChartJS,
   PointElement,
   Title,
   Tooltip,
-  Legend } from 'chart.js';
+  Legend
+} from 'chart.js';
 import { getDatabaseSchema, getSqlQueryResults } from "../../common/api.services";
 import { TableSchema } from "../../common/types";
 import SchemaStructure from "../../components/SchemaStructure/SchemaStructure";
+import Loader from "../../components/Loader/Loader";
 import "./QueryEditor.scss";
 
 ChartJS.register(
@@ -33,8 +36,10 @@ type QueryHistoryItem = { id: number; query: string; timestamp: Date; };
 type ChartType = "bar" | "pie" | "line" | "tabular" | null;
 
 const QueryEditor: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false)
   const [query, setQuery] = useState<string>("");
-  const [data, setData] = useState<RowData[]>([]);
+  const [responseData, setResponseData] = useState('')
+  const [sqlData, setSqlData] = useState<RowData[]>([]);
   const [columns, setColumns] = useState<Column<RowData>[]>([]);
   const [history, setHistory] = useState<QueryHistoryItem[]>([]);
   const [chartType, setChartType] = useState<ChartType>(null);
@@ -44,14 +49,13 @@ const QueryEditor: React.FC = () => {
   const [sqlQuery, setSqlQuery] = useState<string | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
   const [schema, setSchema] = useState<TableSchema[]>([]);
-  const [logs, setLogs] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'results' | 'console'>('results');
 
   const fetchSchema = async () => {
-    try{
+    try {
       const response = await getDatabaseSchema(localStorage.getItem('module') as string);
       setSchema(response);
-    } catch(error) {
+    } catch (error) {
       console.error("Error fetching schema:", error);
     }
   };
@@ -61,26 +65,26 @@ const QueryEditor: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (data.length > 0 && columns.length > 0) {
+    if (sqlData.length > 0 && columns.length > 0) {
       analyzeDataForCharts();
     }
-  }, [data, columns]);
+  }, [sqlData, columns]);
 
   const analyzeDataForCharts = () => {
     const numericColumns = columns.filter(col => {
       if (typeof col.accessor !== 'string') return false;
-      return data.some(row => {
+      return sqlData.some(row => {
         const value = row[col.accessor as string];
         return !isNaN(parseFloat(value)) && isFinite(value);
       });
     });
 
     const newAvailableChartTypes: ChartType[] = [];
-    
+
     if (numericColumns.length >= 1) {
       newAvailableChartTypes.push("bar", "line");
     }
-    
+
     if (numericColumns.length === 1) {
       newAvailableChartTypes.push("pie");
     }
@@ -89,32 +93,28 @@ const QueryEditor: React.FC = () => {
 
     if (numericColumns.length > 0) {
       const firstNumericCol = numericColumns[0].accessor as string;
-      const labels = data.map((_, index) => `Row ${index + 1}`);
-      
+      const labels = sqlData.map((_, index) => `Row ${index + 1}`);
+
       setChartData({
         labels,
         datasets: [{
           label: firstNumericCol,
-          data: data.map(row => parseFloat(row[firstNumericCol])),
+          data: sqlData.map(row => parseFloat(row[firstNumericCol])),
           backgroundColor: '#374151',
           borderColor: '#111827',
           borderWidth: 1
         }]
       });
-      
+
       if (newAvailableChartTypes.length > 0) {
         setChartType(newAvailableChartTypes[0]);
       }
     }
   };
 
-  const addLog = (message: string) => {
-    const timestamp = new Date().toISOString();
-    setLogs(prev => [`[${timestamp}] ${message}`, ...prev].slice(0, 100));
-  };
 
   const fetchData = async () => {
-    addLog(`Executing query: ${query}`);
+    setIsLoading(true)
     const newHistoryItem: QueryHistoryItem = {
       id: history.length + 1,
       query,
@@ -123,20 +123,20 @@ const QueryEditor: React.FC = () => {
     setHistory([...history, newHistoryItem]);
 
     try {
-      const dbResponse = await getSqlQueryResults({ 
-        query: query, 
-        db: localStorage.getItem('module') as string 
+      const dbResponse = await getSqlQueryResults({
+        query: query,
+        db: localStorage.getItem('module') as string
       });
 
       if (dbResponse && typeof dbResponse.response === 'string') {
         setErrorMsg(dbResponse.response);
-        setData([]);
+        setSqlData([]);
         setColumns([]);
         setChartType(null);
         setSqlQuery(null);
         return;
       }
-
+      setResponseData(dbResponse?.response)
       if (dbResponse?.response?.sql && Array.isArray(dbResponse.response.sql)) {
         const rows = dbResponse.response.sql;
         const chartType = dbResponse.response.chartType || "";
@@ -148,7 +148,7 @@ const QueryEditor: React.FC = () => {
             accessor: key,
           }));
           setColumns(cols);
-          setData(rows);
+          setSqlData(rows);
           //TODO - Work on chart
           // setChartType(chartType);
           setErrorMsg(null);
@@ -156,29 +156,31 @@ const QueryEditor: React.FC = () => {
           // setSqlQuery(sqlQuery);
         } else {
           setColumns([]);
-          setData([]);
+          setSqlData([]);
           setChartType(null);
           setErrorMsg("No data returned from query.");
           setSqlQuery(null);
         }
       } else {
         setColumns([]);
-        setData([]);
+        setSqlData([]);
         setChartType(null);
         setErrorMsg("Invalid response format.");
         setSqlQuery(null);
       }
+      setIsLoading(false)
     } catch (err) {
+      setIsLoading(false)
       console.error("Error fetching data:", err);
       setColumns([]);
-      setData([]);
+      setSqlData([]);
       setChartType(null);
       setErrorMsg("Something went wrong while processing your request.");
       setSqlQuery(null);
     }
   };
 
-  const tableInstance = useTable({ columns, data });
+  const tableInstance = useTable({ columns, data: sqlData });
 
   const renderHistoryItem = (item: QueryHistoryItem) => {
     return (
@@ -233,7 +235,7 @@ const QueryEditor: React.FC = () => {
             <table className="data-table">
               <thead>
                 <tr>
-                  {Object.keys(data[0]).map((key) => (
+                  {Object.keys(sqlData[0]).map((key) => (
                     <th key={key} className="table-header">
                       {key}
                     </th>
@@ -241,7 +243,7 @@ const QueryEditor: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.map((row, rowIndex) => (
+                {sqlData.map((row, rowIndex) => (
                   <tr key={rowIndex}>
                     {Object.keys(row).map((key) => (
                       <td key={key} className="table-cell">
@@ -325,7 +327,7 @@ const QueryEditor: React.FC = () => {
             </div>
           </div>
         )}
-    
+
         <div className="results-section">
           <div className="table-panel">
             <div className="panel-header">
@@ -343,14 +345,14 @@ const QueryEditor: React.FC = () => {
                   Console
                 </button>
               </div>
-              {activeTab === 'results' && data.length > 0 && (
-                <span className="row-count">{data.length} rows</span>
+              {activeTab === 'results' && sqlData.length > 0 && (
+                <span className="row-count">{sqlData.length} rows</span>
               )}
             </div>
             <div className="panel-content">
               {activeTab === 'results' ? (
                 <div className="table-container">
-                  {data.length > 0 ? (
+                  {sqlData?.length > 0 ? (
                     <table {...tableInstance.getTableProps()} className="data-table">
                       <thead>
                         {tableInstance.headerGroups.map((headerGroup: HeaderGroup, index) => (
@@ -378,37 +380,35 @@ const QueryEditor: React.FC = () => {
                         })}
                       </tbody>
                     </table>
-                ) : (     
-                  <div className="empty-table">
-                    <p>No data to display. Run a query to see results.</p>
-                  </div>
-                )}  
-              </div>
+                  ) : (
+                    <div className="empty-table">
+                      {isLoading ? <Loader /> : <p>No data to display. Run a query to see results.</p>}
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="console-container">
-                  {logs.length > 0 ? (
+                  {responseData ? (
                     <div className="console-logs">
-                      {logs.map((log, index) => (
-                        <div key={index} className="log-entry">
-                          {log}
-                        </div>
-                      ))}
+                      <pre>
+                        {JSON.stringify(responseData, null, 2)}
+                      </pre>
                     </div>
-                ) : (
-                  <div className="empty-console">
-                    <p>No logs available. Actions will appear here.</p>
-                  </div>
-                )}
+                  ) : (
+                    <div className="empty-console">
+                      {isLoading ? <Loader /> : <p>No logs available. Actions will appear here.</p>}
+                    </div>
+                  )}
                 </div>
               )}
-              </div> 
             </div>
+          </div>
 
           {/* Chart Panel (Right) */}
           <div className="chart-panel">
             <div className="panel-header">
               <h3>Visualization</h3>
-              {availableChartTypes.length > 0 && (
+              {availableChartTypes?.length > 0 && (
                 <div className="chart-type-selector">
                   {availableChartTypes.map((type) => (
                     type && (
@@ -425,7 +425,7 @@ const QueryEditor: React.FC = () => {
               )}
             </div>
             <div className="chart-container">
-              {renderChart()}
+              {isLoading ? <Loader /> : renderChart()}
             </div>
           </div>
         </div>

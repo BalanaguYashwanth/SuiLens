@@ -482,7 +482,6 @@ $notification-bg: #f0f7ff;
   display: flex;
   flex-direction: column;
 }
-
 .console-container {
   flex: 1;
   overflow: auto;
@@ -490,22 +489,28 @@ $notification-bg: #f0f7ff;
   border-radius: 4px;
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 13px;
-  
+  max-width: 100%;
+
   .console-logs {
     padding: 8px;
-    
+
+    pre {
+      white-space: pre-wrap;    
+      word-break: break-word;   
+      overflow-wrap: break-word;
+      max-width: 100%;          
+    }
+
     .log-entry {
       padding: 4px 0;
       border-bottom: 1px solid #eee;
-      white-space: pre-wrap;
-      word-break: break-word;
-      
+
       &:last-child {
         border-bottom: none;
       }
     }
   }
-  
+
   .empty-console {
     display: flex;
     align-items: center;

@@ -10,14 +10,15 @@ import {
     Legend,
     ResponsiveContainer,
 } from "recharts";
-import { useNavigate, useParams } from "react-router-dom";
+import {useParams } from "react-router-dom";
 import { getColor, transformPackageData } from "../../common/helpers";
 import FunctionGraph from "../../components/FunctionGraph/FunctionGraph";
 import { GOOGLE_COLRS } from "../../common/color";
+import Loader from "../../components/Loader/Loader";
 import "./Dashboard.scss";
 
 const Dashboard = () => {
-    const navigate = useNavigate()
+    const [isLoading, setIsLoading] = useState(false);
     const { packageAddress } = useParams();
     const [analytics, setAnalytics] = useState<Record<string, string | number>[]>([]);
     const [functionNames, setFunctionNames] = useState<string[]>([]);
@@ -25,18 +26,26 @@ const Dashboard = () => {
     const [originalTimeline, setOriginalTimeline] = useState<TimelineData>({});
 
     const fetchAnalytics = async (packageAddress: string) => {
-        if (packageAddress) {
-            // #TODO: Add loader
-            const response = await getPackageAnalytics(packageAddress);
-            const timeline = response?.analytics;
-            if (timeline) {
-                const data = transformPackageData(timeline);
-                setAnalytics(data);
-                setFunctionNames(Object.keys(timeline));
-                setOriginalTimeline(timeline);
+        try {
+            if (packageAddress) {
+                setIsLoading(true);
+                const response = await getPackageAnalytics(packageAddress);
+                const timeline = response?.analytics;
+                if (timeline) {
+                    const data = transformPackageData(timeline);
+                    setAnalytics(data);
+                    setFunctionNames(Object.keys(timeline));
+                    setOriginalTimeline(timeline);
+                }
+            } else {
+                setIsLoading(false);
+                console.error('Couldnt get the package address')
             }
-        } else {
-            console.error('Couldnt get the package address')
+            setIsLoading(false)
+        } catch (err) {
+            console.log('Error occurred in fetching analytics', err)
+        } finally {
+            setIsLoading(false)
         }
     };
 
@@ -47,11 +56,14 @@ const Dashboard = () => {
     }, [packageAddress]);
 
     return (
-
-            <div className="content">
-
-                <main className="analytics-graph">
-                    <h2> Graph</h2>
+        <div className="content">
+            <main className="analytics-graph">
+                <h2> Graph</h2>
+                {isLoading ? (
+                    <div className="chart-loader">
+                        <Loader />
+                    </div>
+                ) : (
                     <ResponsiveContainer width="100%" height={400}>
                         <LineChart data={analytics} margin={{ top: 40, right: 30, left: 20, bottom: 5 }}>
                             <defs>
@@ -81,35 +93,36 @@ const Dashboard = () => {
                             ))}
                         </LineChart>
                     </ResponsiveContainer>
+                )}
 
-                    {functionNames.length > 1 && <section>
-                        <div className="individual-graph-grid">
-                            {functionNames.map((fn, i) => {
-                                const individualData = analytics.map((entry) => ({
-                                    date: entry.date,
-                                    [fn]: entry[fn] || 0,
-                                }));
-                                const isLast = i === functionNames.length - 1;
-                                const isOdd = functionNames.length % 2 !== 0;
-                                const spanFull = isOdd && isLast;
+                {functionNames?.length > 1 && <section>
+                    <div className="individual-graph-grid">
+                        {functionNames.map((fn, i) => {
+                            const individualData = analytics.map((entry) => ({
+                                date: entry.date,
+                                [fn]: entry[fn] || 0,
+                            }));
+                            const isLast = i === functionNames.length - 1;
+                            const isOdd = functionNames.length % 2 !== 0;
+                            const spanFull = isOdd && isLast;
 
-                                return (
-                                    <div
-                                        key={fn}
-                                        className={`individual-graph ${spanFull ? "graph-span-full" : ""}`}
-                                    >
-                                        <FunctionGraph
-                                            data={individualData}
-                                            functionName={fn}
-                                            color={GOOGLE_COLRS[i % GOOGLE_COLRS.length]}
-                                        />
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </section>}
-                </main>
-            </div>
+                            return (
+                                <div
+                                    key={fn}
+                                    className={`individual-graph ${spanFull ? "graph-span-full" : ""}`}
+                                >
+                                    <FunctionGraph
+                                        data={individualData}
+                                        functionName={fn}
+                                        color={GOOGLE_COLRS[i % GOOGLE_COLRS.length]}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+                </section>}
+            </main>
+        </div>
     );
 };
 

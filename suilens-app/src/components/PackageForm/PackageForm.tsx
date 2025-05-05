@@ -15,6 +15,7 @@ const PackageForm: React.FC<PackageFormProps> = () => {
   const handleSubmit = async () => {
     try {
       setIsLoading(true)
+      localStorage.setItem('module',packageName)
       //TODO - Add request to the backend
       // await createPackage({packageAddress, packageName})
       setTimeout(() => {

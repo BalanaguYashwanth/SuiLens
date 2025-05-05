@@ -79,3 +79,18 @@
     }
   }
 }
+
+
+.chart-loader {
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  color: #718096;
+
+  p {
+    margin-top: 1rem;
+  }
+}
