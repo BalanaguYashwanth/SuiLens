@@ -6,6 +6,7 @@
     height: 120px;
     display: flex;
     align-items: center;
+    flex-direction: column;
     justify-content: center;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
     border: 1px solid #e8e8e8;
@@ -16,13 +17,13 @@
     &:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12);
-      border-color: #2d5f8b;
+      border-color: var(--color-black-300);
     }
   
     .package-name {
       font-size: 1.4rem;
       font-weight: 600;
-      color: #2d5f8b;
+      color: var(--color-black-300);
       text-align: center;
       word-break: break-word;
       overflow: hidden;

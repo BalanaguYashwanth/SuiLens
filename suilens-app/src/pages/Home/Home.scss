@@ -1,46 +1,62 @@
 .home-page {
-    padding: 3rem 2rem;
-    background-color: white;
-    min-height: 100vh;
-    max-width: 1400px;
-    margin: 0 auto;
-  
-    .package-header {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f0f4f8, #e6ecf3); // Premium gradient
+
+  .home-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    button {
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 500;
+      color: white;
+      background-color: #2d5f8b;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       display: flex;
-      justify-content: flex-end;
       align-items: center;
-      margin-bottom: 3rem;
-      padding: 0 1rem;
-  
-      button {
-        padding: 12px 24px;
-        font-size: 1rem;
-        font-weight: 500;
-        color: white;
-        background-color: #2d5f8b;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-  
-        &:hover {
-          background-color: #1c4f73;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-  
-        &:active {
-          transform: translateY(0);
-        }
-  
-        &::before {
-          content: "+";
-          font-size: 1.2rem;
-        }
+      gap: 8px;
+
+      &:hover {
+        background-color: #1c4f73;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      &::before {
+        content: "+";
+        font-size: 1.2rem;
       }
     }
   }
+
+  .home-header button {
+    padding: 0.75rem 1.5rem;
+    background:var(--color-black-300); // Premium purple gradient
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
+  }
+}

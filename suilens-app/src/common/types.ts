@@ -17,13 +17,13 @@ export interface OutputContentProps {
   url: string;
 }
 
-export interface ProjectProp {
-  id: string;
+export interface PackageProps {
+  address: string;
   name: string;
 }
 
 export interface ProjectCardProps {
-    project: ProjectProp;
+    project: PackageProps;
 }
 
 export interface ProjectFormProps {
@@ -32,8 +32,8 @@ export interface ProjectFormProps {
   data?: { id: string; url: string };
 }
 
-export interface ProjectListProps {
-  projects: ProjectProp[];
+export interface PackageListProps {
+  projects: PackageProps[];
 }
 
 export interface ColumnSchema {
@@ -53,16 +53,20 @@ export interface SchemaStructureProps {
 }
 
 export interface Package {
-  id: string;
-  name: string;
-  module: string;
+  packageAddress: string;
+  packageName: string;
 }
 
 export interface PackageCardProps {
-  package: Package;
+  pkg: Package;
 }
 
 export interface PackageFormProps {
   onSubmit?: (id: string, module: string) => void;
   data?: { id: string; module: string };
+}
+
+export interface CreatePackageProps{
+  packageAddress: string
+  packageName: string
 }

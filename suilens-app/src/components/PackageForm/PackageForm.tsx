@@ -1,48 +1,65 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PackageFormProps } from '../../common/types';
+import { PAGE_ROUTES } from '../../common/constant';
+import Loader from '../Loader/Loader';
 import './PackageForm.scss';
 
-const PackageForm: React.FC<PackageFormProps> = ({ onSubmit }) => {
-  const [id, setId] = useState('');
-  const [module, setModule] = useState('');
+const PackageForm: React.FC<PackageFormProps> = () => {
+  const naviagate = useNavigate()
+  const [isLoading, setIsLoading] = useState(false)
+  const [packageAddress, setPackageAddress] = useState('');
+  const [packageName, setPackageName] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = () => {
-    if (!id.trim() || !module.trim()) {
-      setError('Both fields are required!');
-      return;
+  const handleSubmit = async () => {
+    try {
+      setIsLoading(true)
+      localStorage.setItem('module',packageName)
+      //TODO - Add request to the backend
+      // await createPackage({packageAddress, packageName})
+      setTimeout(() => {
+        setIsLoading(false)
+        naviagate(`${PAGE_ROUTES.DASHBOARD}/${packageAddress}`)
+      }, 5000)
+
+    } catch (error: any) {
+      console.log('Error occured in adding package', error)
+      setError(error)
     }
-    setError('');
-    onSubmit?.(id, module);
   };
+
+  if (isLoading) {
+    <Loader />
+  }
 
   return (
     <div className="package-form">
       <div className="form-group">
-        <label htmlFor="package-id">Package ID</label>
+        <label htmlFor="package-address">Package Address</label>
         <input
-          id="package-id"
+          id="package-address"
           className={`form-input ${error ? 'error' : ''}`}
-          placeholder="Enter package ID"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
+          placeholder="Enter smartcontract package address"
+          value={packageAddress}
+          onChange={(e) => setPackageAddress(e.target.value)}
         />
       </div>
-      
+
       <div className="form-group">
-        <label htmlFor="package-module">Module</label>
+        <label htmlFor="package-module">Package Name</label>
         <input
           id="package-module"
           className={`form-input ${error ? 'error' : ''}`}
-          placeholder="Enter module name"
-          value={module}
-          onChange={(e) => setModule(e.target.value)}
+          placeholder="Enter module or package name"
+          value={packageName}
+          onChange={(e) => setPackageName(e.target.value)}
         />
         {error && <div className="error-message">{error}</div>}
       </div>
-      
+
       <button className="form-submit-button" onClick={handleSubmit}>
-        Create Package
+        Track
       </button>
     </div>
   );

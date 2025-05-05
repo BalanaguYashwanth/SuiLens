@@ -1,22 +1,23 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
 import Login from './pages/Login/Login';
-import Project from './pages/Project/Project';
 import Home from './pages/Home/Home';
+import QueryEditor from './pages/QueryEditor/QueryEditor';
 import Dashboard from './pages/Dashboard/Dashboard';
-import DashboardV2 from './pages/DashboardV2/DashboardV2';
+import { PAGE_ROUTES } from './common/constant';
+import Layout from './components/Layout/Layout';
+import './App.css';
 
 function App() {
+  const {QUERY_EDITOR, HOME, DASHBOARD} = PAGE_ROUTES
   return (
     <Router>
       <Routes>
-        {/* #TODO - make this as dashboard */}
-        <Route path="/dashboard-v2" element={<DashboardV2 />} />
+        <Route path={HOME} element={<Home />} />
         <Route path="/" element={<Login />} />
-        <Route path="/projects" element={<Project />} />
-        <Route path="/projects/:projectId/home" element={<Home />} />
-        {/* #TODO - make this dashboard as editor */}
-        <Route path="/dashboard/:packageId" element={<Dashboard />} />
+        <Route element={<Layout />} >
+          <Route path={`${DASHBOARD}/:packageAddress`} element={<Dashboard />} />  
+          <Route path={`${QUERY_EDITOR}/:packageAddress`} element={<QueryEditor />} />
+        </Route>
       </Routes>
     </Router>
   );
