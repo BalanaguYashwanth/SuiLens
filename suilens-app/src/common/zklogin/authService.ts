@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { generateNonce, generateRandomness, getExtendedEphemeralPublicKey } from '@mysten/sui/zklogin';
 import { jwtToAddress } from '@mysten/sui/zklogin';
@@ -136,11 +137,7 @@ export class AuthService {
             randomness,
             ephemeralKeyPair,
         };
-
-        console.log({jwtData})
-
         sessionStorage.setItem("jwt_data", JSON.stringify(jwtData));
-
         const params = new URLSearchParams({
             client_id: SUI_ZKLOGIN.CLIENT_ID as string,
             redirect_uri: SUI_ZKLOGIN.REDIRECT_URL as string,
@@ -151,15 +148,8 @@ export class AuthService {
 
         console.log({params})
         try {
-            const providerResponse = await fetch(SUI_ZKLOGIN.OPENID_PROVIDER_URL as string, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            })
-            const providerResponseData = await providerResponse.json()
-            console.log({providerResponseData})
-            const authUrl = `${providerResponseData.authorization_endpoint}?${params}`;
+            const { data } = await axios.get(SUI_ZKLOGIN.OPENID_PROVIDER_URL as string);
+            const authUrl = `${data.authorization_endpoint}?${params}`;
             window.location.href = authUrl;
         } catch (error) {
             console.error('Error initiating Google login:', error);
