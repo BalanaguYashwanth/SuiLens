@@ -1,3 +1,4 @@
+import { SuiClient } from '@mysten/sui/client';
 import { TimelineData } from "./api.services";
 
 export const transformPackageData = (timeline: TimelineData) => {
@@ -21,3 +22,7 @@ export const getColor = (index: number) => {
     const hue = googleHueOffsets[index % googleHueOffsets.length] + (index * 15) % 30;
     return `hsl(${hue}, 85%, 55%)`;
 };
+
+// node rpc url
+const FULLNODE_URL = process.env.REACT_APP_FULLNODE_URL;
+export const SUI_CLIENT = new SuiClient({ url: FULLNODE_URL as string })
