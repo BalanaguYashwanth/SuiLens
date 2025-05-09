@@ -6,6 +6,7 @@ import { genAddressSeed, getZkLoginSignature } from "@mysten/sui/zklogin";
 import { jwtDecode } from "jwt-decode";
 import { SUI_ZKLOGIN } from "../constant";
 import { SUI_CLIENT } from "../helpers";
+import { authenticateUser, createUser } from "../api.services";
 
 export class AuthService {
 
@@ -155,7 +156,22 @@ export class AuthService {
             console.error('Error initiating Google login:', error);
         }
     }
+
+    static async finalizeLoginAndCreateUserIfNeeded() {
+        const token = this.jwt();
+        if (token) {
+            try {
+                await authenticateUser(token);
+
+                const res = await createUser();
+                console.log("User creation response:", res);
+            } catch (err) {
+                console.error("Failed to create user in DB:", err);
+            }
+        }
+    }
 }
+
 export interface JwtPayload {
     iss?: string;
     sub?: string;

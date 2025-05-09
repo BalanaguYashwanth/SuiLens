@@ -10,6 +10,6 @@ class PackageModel(Base):
     package_id = Column(String, nullable=False, unique=True)
     module_name = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    project_id = Column(String, ForeignKey("projects.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    project = relationship("ProjectModel", back_populates="packages")
+    user = relationship("UserModel", back_populates="packages")

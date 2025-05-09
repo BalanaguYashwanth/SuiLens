@@ -8,7 +8,6 @@ class UserModel(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String, nullable=False, unique=True)
-    name = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    projects = relationship("ProjectModel", back_populates="user")
+    packages = relationship("PackageModel", back_populates="user")

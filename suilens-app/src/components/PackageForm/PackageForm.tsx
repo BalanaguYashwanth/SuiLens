@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createPackage } from '../../common/api.services';
 import { PackageFormProps } from '../../common/types';
 import { PAGE_ROUTES } from '../../common/constant';
 import Loader from '../Loader/Loader';
@@ -14,10 +15,9 @@ const PackageForm: React.FC<PackageFormProps> = () => {
 
   const handleSubmit = async () => {
     try {
-      setIsLoading(true)
-      localStorage.setItem('module',packageName)
-      //TODO - Add request to the backend
-      // await createPackage({packageAddress, packageName})
+      setIsLoading(true);
+      localStorage.setItem('module',packageName);
+      await createPackage({packageAddress, packageName});
       setTimeout(() => {
         setIsLoading(false)
         naviagate(`${PAGE_ROUTES.DASHBOARD}/${packageAddress}`)

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { AuthService } from '../../common/zklogin/authService';
 
 const AuthCallback = () => {
   useEffect(() => {
@@ -8,6 +9,9 @@ const AuthCallback = () => {
         const jwtToken = params.get("id_token") as string;
 
         sessionStorage.setItem("sui_jwt_token", jwtToken);
+
+        await AuthService.finalizeLoginAndCreateUserIfNeeded();
+
         window.location.href = '/home';
       } catch (error) {
         console.error('Error handling callback:', error);
