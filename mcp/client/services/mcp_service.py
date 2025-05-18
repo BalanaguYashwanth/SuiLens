@@ -91,7 +91,6 @@ class MCPClient:
         schema_response = await self.session.read_resource(f"schema://db//{db_name}")
         schema_resource = schema_response.contents[0].text
         sql_prompt = self.get_sql_prompt(query, schema_resource, db_name, resources)
-
         response = await self.get_latest_llm_response(tools, prompt=sql_prompt)
         if not response:
             return None
@@ -122,7 +121,6 @@ class MCPClient:
             if not response:
                 return None
             final_response, latest_index = await multi_chaining(latest_index, final_response, contents=response.content, session=self.session)
-
         return final_response
 
     async def cleanup(self):

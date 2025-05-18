@@ -3,19 +3,18 @@ import dotenv from 'dotenv';
 import { ValidationError } from '../errors/ValidationError.js';
 dotenv.config();
 
-const { SUILENS_API_URL } = process.env;
-
+const { SUILENS_API_URL = 'http://localhost:8001' } = process.env;
 const api = axios.create({
   baseURL: SUILENS_API_URL
 });
 
-export async function createDatabaseAndTable(dbName: string, tableName: string): Promise<void> {
+export async function createTable(dbName: string, tableName: string): Promise<void> {
   if (!dbName) throw new ValidationError('Database name are required.');
   try {
     const res = await api.post('/event/create', { dbName, tableName });
     if (res.status !== 200) throw new Error('Unexpected response while creating DB/Table.');
   } catch (error: any) {
-    console.error('Error during createDatabaseAndTable:', error.message);
+    console.error('Error during createTable:', error.message);
     throw new Error('Failed to create database and table: ' + (error.response?.data?.message || error.message));
   }
 }

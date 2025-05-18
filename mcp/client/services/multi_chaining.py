@@ -18,7 +18,6 @@ async def multi_chaining(index, final_text, contents, session):
 
             call_tool_result = await session.call_tool(tool_name, tool_args)
             call_tool_response_contents = call_tool_result.content
-
             final_text['text'+ str(index)] = call_tool_response_contents
 
             if (not sql_output) and tool_name in ['read_query']:

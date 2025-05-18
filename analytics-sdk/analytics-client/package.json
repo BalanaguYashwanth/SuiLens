@@ -1,7 +1,7 @@
 {
-  "name": "analytics-client",
+  "name": "suilens-sdk",
   "version": "1.0.0",
-  "description": "Client library to interact with analytics-storage-server",
+  "description": "Client library to interact with analytics-server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",

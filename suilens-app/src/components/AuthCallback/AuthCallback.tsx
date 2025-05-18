@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { AuthService } from '../../common/zklogin/authService';
 
+
 const AuthCallback = () => {
   useEffect(() => {
     const handleCallback = async () => {

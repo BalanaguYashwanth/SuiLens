@@ -24,31 +24,45 @@ class EventHandler:
             print("Check and create table error:", e)
             raise ApiError(500, "Table creation failed")
 
-    async def insert_data(self, db: str, table_name: str, data: dict):
+    async def insert_data(self, db: str, table_name: str, data):
         try:
+            # Normalize input data to a list of dicts
+            if isinstance(data, dict):
+                records = [data]
+            elif isinstance(data, list):
+                records = data
+            else:
+                raise ValueError("Data must be a dict or a list of dicts")
+
+            if not records:
+                return  # Nothing to insert
+
             with get_db_connection(db) as conn:
                 cursor = conn.cursor()
 
-                [first_row] = data.get('data', []) or [{}]
-
+                # Check if table exists
                 cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
                 row = cursor.fetchone()
+                first_row = records[0]
 
                 if not row:
+                    # Create table with columns from first record keys
                     columns = ", ".join([f"{key} TEXT" for key in first_row.keys()])
                     create_table_query = f"CREATE TABLE {table_name} (primary_id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})"
                     cursor.execute(create_table_query)
                 else:
+                    # Table exists, check existing columns and add missing ones
                     cursor.execute(f"PRAGMA table_info({table_name})")
                     existing_columns_info = cursor.fetchall()
-                    existing_columns = [col[1] for col in existing_columns_info] 
+                    existing_columns = [col[1] for col in existing_columns_info]
 
                     for key in first_row.keys():
                         if key not in existing_columns:
                             alter_query = f"ALTER TABLE {table_name} ADD COLUMN {key} TEXT"
                             cursor.execute(alter_query)
-
-                for record in data["data"]:
+                            
+                # Insert all records
+                for record in records:
                     columns = record.keys()
                     placeholders = ", ".join(["?" for _ in columns])
                     values = tuple(record.values())

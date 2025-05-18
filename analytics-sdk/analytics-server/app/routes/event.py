@@ -7,15 +7,13 @@ event_router = APIRouter(prefix="/event", tags=["event_router"])
 async def handle_create(request: Request):
     body = await request.json()
     app = get_app()
-    
-    await app.event_service.create_database_and_table(body['dbName'], body['tableName'])
+    await app.event_service.create_table(body['dbName'], body['tableName'])
     return {"success": True, "message": "Database and table ready"}
 
 @event_router.post("/insert")
 async def handle_insert(request: Request):
     body = await request.json()
     app = get_app()
-
     await app.event_service.insert_table(body['dbName'], body['tableName'], body['data'])
     return {"success": True, "message": "Data inserted"}
 
