@@ -6,10 +6,27 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import { PAGE_ROUTES } from './common/constant';
 import Layout from './components/Layout/Layout';
 import AuthCallback from './components/AuthCallback/AuthCallback';
+import Demo from './pages/Demo/Demo';
+import { getFullnodeUrl } from "@mysten/sui/client";
+import {
+  SuiClientProvider,
+  WalletProvider,
+} from "@mysten/dapp-kit";
+import '@mysten/dapp-kit/dist/index.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './App.css';
 
+const queryClient = new QueryClient();
+
+const networks = {
+  localnet: { url: getFullnodeUrl("localnet") },
+  devnet: { url: getFullnodeUrl("devnet") },
+  testnet: { url: getFullnodeUrl("testnet") },
+  mainnet: { url: getFullnodeUrl("mainnet") },
+};
+
 function App() {
-  const {QUERY_EDITOR, HOME, DASHBOARD} = PAGE_ROUTES
+  const { QUERY_EDITOR, HOME, DASHBOARD, DEMO } = PAGE_ROUTES
   return (
     <Router>
       <Routes>
@@ -17,8 +34,16 @@ function App() {
         <Route path="/Login" element={<Login />} />
         <Route path="/" element={<AuthCallback />} />
         <Route element={<Layout />} >
-          <Route path={`${DASHBOARD}/:packageAddress`} element={<Dashboard />} />  
+          <Route path={`${DASHBOARD}/:packageAddress`} element={<Dashboard />} />
           <Route path={`${QUERY_EDITOR}/:packageAddress`} element={<QueryEditor />} />
+          <Route path={`${DEMO}`} element={
+            <QueryClientProvider client={queryClient}>
+              <SuiClientProvider network="testnet" networks={networks}>
+                <WalletProvider autoConnect>
+                  <Demo />
+                </WalletProvider>
+              </SuiClientProvider>
+            </QueryClientProvider>} />
         </Route>
       </Routes>
     </Router>

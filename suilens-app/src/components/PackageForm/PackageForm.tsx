@@ -57,7 +57,10 @@ const PackageForm: React.FC<PackageFormProps> = () => {
         />
         {error && <div className="error-message">{error}</div>}
       </div>
-
+      {/* todo */}
+      {/* <hr />
+      <p> Add .env and npm package details </p> */}
+      {/* it should sync with existing table */}
       <button className="form-submit-button" onClick={handleSubmit}>
         Track
       </button>

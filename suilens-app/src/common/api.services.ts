@@ -1,3 +1,4 @@
+import { FIREBASE_DB_API } from "./constant";
 import { BACKEND_API, MCP_CLIENT_API, SUILENS_ANALYTICS_BACKEND_API } from "./env"
 import { CreateEvents, CreatePackageProps, GetSqlQueryResults, TableSchema } from "./types";
 
@@ -91,6 +92,43 @@ export const getPackageAnalytics = async (packageId: string, batch_size=100) => 
     headers: { "Content-Type": "application/json" },
   });
   return res.json();
+}
+
+export const recordNFT = async (nftID: string) => {
+  const timestamp = new Date().toLocaleString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'UTC'
+    }).replace(/[, ]/g, '-').replace(/:/g, '-');
+
+    await fetch(`${FIREBASE_DB_API}/suilens/${timestamp}.json`, {
+      method: 'PUT',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nftID })
+  })
+}
+
+export const fetchNFT = async () => {
+  const data = await fetch(`${FIREBASE_DB_API}/suilens.json`, {
+    method: 'GET',
+    headers: { "Content-Type": "application/json" },
+  })
+  const response = await data.json()
+  return response
+}
+
+export const deleteNFT = async(keyName: string) => {
+  const data = await fetch(`${FIREBASE_DB_API}/suilens/${keyName}.json`, {
+    method: 'DELETE',
+    headers: { "Content-Type": "application/json" },
+  })
+  const response = await data.json()
+  return response
 }
 
 export type TimelineData = Record<string, Record<string, number>>;
