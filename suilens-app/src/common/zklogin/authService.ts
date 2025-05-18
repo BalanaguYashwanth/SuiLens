@@ -147,7 +147,6 @@ export class AuthService {
             nonce: nonce,
         });
 
-        console.log({params})
         try {
             const { data } = await axios.get(SUI_ZKLOGIN.OPENID_PROVIDER_URL as string);
             const authUrl = `${data.authorization_endpoint}?${params}`;
