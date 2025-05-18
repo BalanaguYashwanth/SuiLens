@@ -1,20 +1,22 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
+from typing import Dict
+from app.middleware.auth_middleware import get_user_from_token
 
 from app.utils.app_utils import get_app
 
 package_router = APIRouter(prefix="/package", tags=["package_router"])
 
 @package_router.post("/create")
-async def create_package(request: Request):
+async def create_package(request: Request, user_data: Dict = Depends(get_user_from_token)):
     body = await request.json()
     app = get_app()
 
-    project_id = body["projectId"]
-    package_id = body["packageId"]
-    module_name = body["moduleName"]
+    email = user_data["email"]
+    package_id = body["packageAddress"]
+    module_name = body["packageName"]
 
     try:
-        package = app.package_service.create_package(project_id, package_id, module_name)
+        package = app.package_service.create_package(email, package_id, module_name)
         return {
             "success": True,
             "package": {
@@ -25,18 +27,18 @@ async def create_package(request: Request):
     except Exception as e:
         return {"success": False, "message": str(e)}
 
-@package_router.get("/get/{project_id}")
-async def get_packages_by_project(project_id: str):
+@package_router.get("/get")
+async def get_packages_by_user(user_data: Dict = Depends(get_user_from_token)):
     app = get_app()
+    email = user_data["email"]
 
     try:
-        packages = app.package_service.get_packages_by_project(project_id)
+        packages = app.package_service.get_packages_by_user(email)
         return {
             "success": True,
             "packages": [{
-                "id": p.package_id,
-                "module": p.module_name,
-                "createdAt": p.created_at.isoformat()
+                "package_address": p.package_id,
+                "package_name": p.module_name
             } for p in packages]
         }
     except Exception as e:

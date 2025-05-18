@@ -53,7 +53,8 @@ const QueryEditor: React.FC = () => {
 
   const fetchSchema = async () => {
     try {
-      const response = await getDatabaseSchema(localStorage.getItem('module') as string);
+      const module = localStorage.getItem('module') as string
+      const response = await getDatabaseSchema(module);
       setSchema(response);
     } catch (error) {
       console.error("Error fetching schema:", error);

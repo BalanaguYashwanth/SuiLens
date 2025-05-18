@@ -8,6 +8,7 @@ const PackageCard: React.FC<PackageCardProps> = ({ pkg }: PackageCardProps) => {
 
   const handleClick = () => {
     navigate(`/dashboard/${pkg.packageAddress}`);
+    localStorage.setItem('module',pkg.packageName)
   };
 
   return (

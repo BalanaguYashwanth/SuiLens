@@ -1,17 +1,12 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session
 
+from app.models.db.db_session import SessionLocal
 from app.models.db.api_url import ApiUrlModel
 from app.utils.api_error import ApiError
-from app.config import DATABASE_URL
 
 class ApiUrlHandler:
-    def __init__(self):
-        self.engine = create_engine(DATABASE_URL, pool_size=10, max_overflow=20, echo=True)
-        self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-
     def get_db_connection(self) -> Session:
-        return self.SessionLocal()
+        return SessionLocal()
 
     async def get_api_url(self):
         db_session = self.get_db_connection()

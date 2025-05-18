@@ -19,37 +19,25 @@ export const getSqlQueryResults = async (data: GetSqlQueryResults) => {
   return response.json();
 }
 
-export const createUser = async (token: string) => {
-  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/user/create`, {
+export const authenticateUser = async (token: string) => {
+  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/user/authenticate`, {
     method: "POST",
     headers: { 
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
     },
-    credentials: 'include'
+    credentials: 'include',
+    body: JSON.stringify({ token })
   });
   return res.json();
 };
 
-export const getProjectsByEmail = async () => {
-  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/project/get`, {
-    method: "GET",
-    headers: { 
-      "Content-Type": "application/json"
-    },
-    credentials: 'include'
-  });
-  return res.json();
-};
-
-export const createProject = async (projectName: string, projectDescription: string) => {
-  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/project/create`, {
+export const createUser = async () => {
+  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/user/create`, {
     method: "POST",
     headers: { 
       "Content-Type": "application/json"
     },
-    credentials: 'include',
-    body: JSON.stringify({ projectName, projectDescription }),
+    credentials: 'include'
   });
   return res.json();
 };
@@ -79,16 +67,20 @@ export const getDatabaseSchema = async (dbName: string): Promise<TableSchema[]> 
 export const createPackage = async ({packageAddress, packageName}: CreatePackageProps) => {
   const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/package/create`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json"
+    },
+    credentials: 'include',
     body: JSON.stringify({ packageAddress, packageName }),
   });
   return res.json();
 };
 
-export const getPackagesByProject = async (projectId: string) => {
-  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/package/get/${projectId}`, {
+export const getPackagesByEmail = async () => {
+  const res = await fetch(`${SUILENS_ANALYTICS_BACKEND_API}/package/get`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
+    credentials: 'include',
   });
   return res.json();
 };

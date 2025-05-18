@@ -1,40 +1,40 @@
-import {useState } from 'react';
+import { useState, useEffect } from 'react';
 import PackageCard from '../PackageCard/PackageCard';
+import { getPackagesByEmail } from '../../common/api.services';
 import './Packages.scss';
 
 const Packages = () => {
-  const [isLoading, setIsLoading] = useState(false)
-  const [packageList, setPackageList] = useState([
-    {packageAddress:'0xa93c09ef153ecfb7353c7a2e3059f769711a04fc63f8cbc64d23dccab1bacf1a', packageName:'forms_escrow'}
-  ])
+  const [isLoading, setIsLoading] = useState(false);
+  const [packageList, setPackageList] = useState<any[]>([]);
 
-  //TODO - make this package request to backend
-  // const loadPackages = async () => {
-    // setIsLoading(true);
-    // try {
-    //   const response = await getProjectsByEmail();
-    //   if (response.success && Array.isArray(response.projects)) {
-    //     setPackages(response.projects.map((project: any) => ({
-    //       id: project.id,
-    //       name: project.name
-    //     })));
-    //   } else {
-    //     setPackages([]);
-    //   }
-    // } catch (error) {
-    //   console.error("Failed to fetch projects:", error);
-    //   setPackages([]);
-    // }
-    // setIsLoading(false);
-  // }
+  const loadPackages = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getPackagesByEmail();
+      if (response.success && Array.isArray(response.packages)) {
+        setPackageList(response.packages.map((pkg: any) => ({
+          packageAddress: pkg.package_address,
+          packageName: pkg.package_name,
+        })));
+      } else {
+        setPackageList([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch package:", error);
+      setPackageList([]);
+    }
+    setIsLoading(false);
+  }
 
-  // useEffect(() => {
-  //   loadPackages();
-  // }, []);
+  useEffect(() => {
+    loadPackages();
+  }, []);
 
   return (
     <div className={`package-container ${packageList.length === 0 ? 'empty' : ''}`}>
-      {packageList.length === 0 ? (
+      {isLoading ? (
+        <p>Loading Packages...</p>
+      ) : packageList.length === 0 ? (
         <div className="empty-state">
           <p>No Packages Found</p>
           <p className="hint">Click "Add Package" to get started</p>

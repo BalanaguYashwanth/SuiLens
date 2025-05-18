@@ -17,7 +17,7 @@ const SchemaStructure: React.FC<SchemaStructureProps> = ({ schema }) => {
   }
 
   if (schema.length === 0) {
-    return <div className="schema-empty">Loading schema...</div>;
+    return <div className="schema-empty">No schemas found</div>;
   }
 
   return (

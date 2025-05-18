@@ -1,30 +1,25 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session
 
+from app.models.db.db_session import SessionLocal
 from app.models.db.package import PackageModel
-from app.models.db.project import ProjectModel
+from app.models.db.user import UserModel
 from app.utils.api_error import ApiError
-from app.config import DATABASE_URL
 
 class PackageHandler:
-    def __init__(self):
-        self.engine = create_engine(DATABASE_URL, pool_size=10, max_overflow=20, echo=True)
-        self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-
     def get_db_connection(self) -> Session:
-        return self.SessionLocal()
+        return SessionLocal()
 
-    def create_package(self, project_id: str, package_id: str, module_name: str):
+    def create_package(self, email: str, package_id: str, module_name: str):
         db_session = self.get_db_connection()
         try:
-            project = db_session.query(ProjectModel).filter(ProjectModel.project_id == project_id).first()
-            if not project:
-                raise ApiError(404, "Project not found")
+            user = db_session.query(UserModel).filter(UserModel.email == email).first()
+            if not user:
+                raise ApiError(404, "User not found")
 
             new_package = PackageModel(
                 package_id=package_id,
                 module_name=module_name,
-                project_id=project.id
+                user_id=user.id,
             )
             db_session.add(new_package)
             db_session.commit()
@@ -36,16 +31,16 @@ class PackageHandler:
         finally:
             db_session.close()
 
-    def get_packages_by_project(self, project_id: str):
+    def get_packages_by_user(self, email: str):
         db_session = self.get_db_connection()
         try:
-            project = db_session.query(ProjectModel).filter(ProjectModel.project_id == project_id).first()
-            if not project:
-                raise ApiError(404, "Project not found")
+            user = db_session.query(UserModel).filter(UserModel.email == email).first()
+            if not user:
+                raise ApiError(404, "User not found")
             
-            packages = db_session.query(PackageModel).filter(PackageModel.project_id == project.id).all()
+            packages = db_session.query(PackageModel).filter(PackageModel.user_id == user.id).all()
             if not packages:
-                raise ApiError(404, "No packages found for this project")
+                raise ApiError(404, "No packages found for this user")
             return packages
         except Exception as e:
             raise ApiError(500, f"Failed to get packages: {str(e)}")

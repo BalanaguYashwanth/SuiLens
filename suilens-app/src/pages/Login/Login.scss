@@ -15,44 +15,35 @@
   border-radius: 20px;
   padding: 2.5rem 2rem;
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb; // light gray border for depth
-  transition: box-shadow 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.login-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  border: 1px solid #e5e7eb;
+  text-align: center;
 }
 
 .login-title {
-  font-size: 1.875rem; // 30px
+  font-size: 1.875rem;
   font-weight: 700;
-  color: #0f172a; // dark neutral
+  color: #0f172a;
   margin-bottom: 0.75rem;
-  letter-spacing: -0.02em;
 }
 
 .login-subtitle {
   font-size: 1rem;
-  color: #6b7280; // gray-600
+  color: #6b7280;
   margin-bottom: 2rem;
-  text-align: center;
-  max-width: 90%;
 }
 
-.google-button {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+.login-button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(to right, #6366f1, #8b5cf6); // purple gradient
+  color: #fff;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
 
-  div {
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
+  &:hover {
+    background: linear-gradient(to right, #4f46e5, #7c3aed);
   }
 }
