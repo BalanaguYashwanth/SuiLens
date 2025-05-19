@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createPackage } from '../../common/api.services';
+import { createEvents, createPackage } from '../../common/api.services';
 import { PackageFormProps } from '../../common/types';
 import { PAGE_ROUTES } from '../../common/constant';
 import Loader from '../Loader/Loader';
@@ -17,12 +17,10 @@ const PackageForm: React.FC<PackageFormProps> = () => {
     try {
       setIsLoading(true);
       localStorage.setItem('module',packageName);
+      await createEvents({packageId: packageAddress, module: packageName})
       await createPackage({packageAddress, packageName});
-      setTimeout(() => {
-        setIsLoading(false)
-        naviagate(`${PAGE_ROUTES.DASHBOARD}/${packageAddress}`)
-      }, 5000)
-
+      setIsLoading(false)
+      naviagate(`${PAGE_ROUTES.DASHBOARD}/${packageAddress}`)
     } catch (error: any) {
       console.log('Error occured in adding package', error)
       setError(error)
