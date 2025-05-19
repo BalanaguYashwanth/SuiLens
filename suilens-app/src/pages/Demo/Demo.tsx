@@ -3,15 +3,18 @@ import { useEffect, useState } from "react";
 import { Transaction } from '@mysten/sui/transactions';
 import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import { ConnectButton, useSignAndExecuteTransaction } from '@mysten/dapp-kit';
+import { SuilensClient } from "suilens-sdk";
 import { DEMO_NFT_PACKAGE_ID } from "../../common/constant";
 import { deleteNFT, fetchNFT, recordNFT } from "../../common/api.services";
 import './Demo.scss';
+import { useParams } from "react-router-dom";
 
 const suiClient = new SuiClient({
     url: getFullnodeUrl('testnet'),
 });
 
 const Demo = () => {
+    const { packageAddress, module_name } = useParams<{ packageAddress: string; module_name: string }>(); 
     const [nfts, setNfts] = useState<Array<{ keyId: string, nftId: string }>>([]);
     const { mutateAsync: signAndExecuteTransactionBlock } = useSignAndExecuteTransaction();
     const [nftDetails, setNftDetails] = useState({
@@ -23,40 +26,70 @@ const Demo = () => {
     const [txStatus, setTxStatus] = useState<string | null>(null);
     const [favorites, setFavorites] = useState<Record<string, boolean>>({});
     const [burned, setBurned] = useState<Record<string, boolean>>({});
+    const [client, setClient] = useState<SuilensClient | null>(null);
+    const [clientReady, setClientReady] = useState(false);
+
+    useEffect(() => {
+        if (!module_name) return;
+        const suilensClient = new SuilensClient();
+        suilensClient.init({ dbName: module_name, tableName: 'status' })
+          .then(() => {
+            setClient(suilensClient);
+            setClientReady(true);
+          })
+          .catch(err => {
+            console.error("Failed to init SuilensClient:", err);
+            setClientReady(false);
+          });
+    }, [module_name]);
+
+    const withClient = async (callback: (client: SuilensClient) => Promise<void>) => {
+        if (!client) {
+            console.warn("Client not initialized");
+            return;
+        }
+        await callback(client);
+    };
 
     const toggleFavorite = async (nftId: string) => {
-        const txb = new Transaction() as any;
-        txb.setGasBudget(100000000);
-        txb.moveCall({
-            arguments: [
-                txb.object(nftId)
-            ],
-            target: `${DEMO_NFT_PACKAGE_ID}::diy_nft::favorite_nft`,
-        });
-
-        await signAndExecuteTransactionBlock({ transaction: txb });
-        setFavorites(prev => ({ ...prev, [nftId]: !prev[nftId] }));
-    };
-
-    const toggleBurn = async (nftId: string, keyId: string) => {
-        try {
+        await withClient(async (client) => {
             const txb = new Transaction() as any;
-            txb.setGasBudget(100_000_000);
+            txb.setGasBudget(100000000);
             txb.moveCall({
                 arguments: [
-                    txb.object(nftId),
+                    txb.object(nftId)
                 ],
-                target: `${DEMO_NFT_PACKAGE_ID}::diy_nft::burn`,
+                target: `${DEMO_NFT_PACKAGE_ID}::diy_nft::favorite_nft`,
             });
 
+            await client.insert({ nftId, action: 'favorite', timestamp: Date.now() });
             await signAndExecuteTransactionBlock({ transaction: txb });
-            await deleteNFT(keyId)
-            const filtered_nfts = nfts.filter(nft => nft.nftId !== nftId)
-            setNfts([...filtered_nfts]);
-        } catch (err) {
-            console.error("Error burning NFT:", err);
-        }
-    };
+            setFavorites(prev => ({ ...prev, [nftId]: !prev[nftId] }));
+        });
+    }
+
+    const toggleBurn = async (nftId: string, keyId: string) => {
+        await withClient(async (client) => {
+            try {
+                const txb = new Transaction() as any;
+                txb.setGasBudget(100_000_000);
+                txb.moveCall({
+                    arguments: [
+                        txb.object(nftId),
+                    ],
+                    target: `${DEMO_NFT_PACKAGE_ID}::diy_nft::burn`,
+                });
+
+                await client.insert({ nftId, action: 'burn', timestamp: Date.now() });
+                await signAndExecuteTransactionBlock({ transaction: txb });
+                await deleteNFT(keyId)
+                const filtered_nfts = nfts.filter(nft => nft.nftId !== nftId)
+                setNfts([...filtered_nfts]);
+            } catch (err) {
+                console.error("Error burning NFT:", err);
+            }
+        });
+    }
 
     const createNFT = async () => {
         try {
@@ -133,7 +166,7 @@ const Demo = () => {
                     <input placeholder="Enter image URL" onChange={e => setNftDetails({ ...nftDetails, image_url: e.target.value })} />
                     <input type="number" placeholder="Enter price" onChange={e => setNftDetails({ ...nftDetails, price: Number(e.target.value) })} />
                 </div>
-                <button className="submit-btn" onClick={createNFT}>Submit</button>
+                <button className="submit-btn" onClick={createNFT} disabled={!clientReady}>Submit</button>
                 {txStatus && <p className="status-msg">{txStatus}</p>}
             </section>
 
@@ -149,6 +182,7 @@ const Demo = () => {
                                     className={`icon-btn ${favorites[nftId] ? 'active favorite' : ''}`}
                                     onClick={() => toggleFavorite(nftId)}
                                     title="Favorite"
+                                    disabled={!clientReady}
                                 >
                                     {favorites[nftId] ? '⭐' : '☆'}
                                 </button>
@@ -156,6 +190,7 @@ const Demo = () => {
                                     className={`icon-btn ${burned[nftId] ? 'active burn' : ''}`}
                                     onClick={() => toggleBurn(nftId, keyId)}
                                     title="Burn"
+                                    disabled={!clientReady}
                                 >
                                     {burned[nftId] ? '🔥' : '🗯️'}
                                 </button>

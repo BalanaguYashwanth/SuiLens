@@ -15,6 +15,7 @@ import {
 import '@mysten/dapp-kit/dist/index.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './App.css';
+import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 
 const queryClient = new QueryClient();
 
@@ -28,22 +29,51 @@ const networks = {
 function App() {
   const { QUERY_EDITOR, HOME, DASHBOARD, DEMO } = PAGE_ROUTES
   return (
-    <Router>
+     <Router>
       <Routes>
-        <Route path={HOME} element={<Home />} />
+        <Route 
+          path={HOME} 
+          element={
+            <PrivateRoute>
+              <Home />
+            </PrivateRoute>
+          } 
+        />
+
         <Route path="/Login" element={<Login />} />
         <Route path="/" element={<AuthCallback />} />
+        
         <Route element={<Layout />} >
-          <Route path={`${DASHBOARD}/:packageAddress`} element={<Dashboard />} />
-          <Route path={`${QUERY_EDITOR}/:packageAddress`} element={<QueryEditor />} />
-          <Route path={`${DEMO}`} element={
-            <QueryClientProvider client={queryClient}>
-              <SuiClientProvider network="testnet" networks={networks}>
-                <WalletProvider autoConnect>
-                  <Demo />
-                </WalletProvider>
-              </SuiClientProvider>
-            </QueryClientProvider>} />
+          <Route
+            path={`${DASHBOARD}/:packageAddress`}
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={`${QUERY_EDITOR}/:packageAddress`}
+            element={
+              <PrivateRoute>
+                <QueryEditor />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={`${DEMO}`}
+            element={
+              <PrivateRoute>
+                <QueryClientProvider client={queryClient}>
+                  <SuiClientProvider network="testnet" networks={networks}>
+                    <WalletProvider autoConnect>
+                      <Demo />
+                    </WalletProvider>
+                  </SuiClientProvider>
+                </QueryClientProvider>
+              </PrivateRoute>
+            }
+          />
         </Route>
       </Routes>
     </Router>
