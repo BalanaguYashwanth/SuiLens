@@ -1,12 +1,11 @@
 import sqlite3
-from typing import Generator
 from pathlib import Path
-from contextlib import contextmanager 
 
-@contextmanager
-def get_db_connection(db: str) -> Generator[sqlite3.Connection, None, None]:
-    conn = None
-    try:
+# Cache for holding connections
+_connections = {}
+
+def get_db_connection(db: str) -> sqlite3.Connection:
+    if db not in _connections:
         db_dir = (Path(__file__).resolve().parents[3].parent / "db")
         db_dir.mkdir(exist_ok=True, parents=True)
 
@@ -20,11 +19,7 @@ def get_db_connection(db: str) -> Generator[sqlite3.Connection, None, None]:
             except Exception as e:
                 print(f"Failed to create file: {e}")
 
-        conn = sqlite3.connect(str(db_path))
-        yield conn
-    except Exception as e:
-        print(f"Connection error details: {e}")
-        raise
-    finally:
-        if conn:
-            conn.close()
+        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+        _connections[db] = conn
+        
+    return _connections[db]

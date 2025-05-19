@@ -55,7 +55,7 @@ const PackageForm: React.FC<PackageFormProps> = () => {
           value={packageName}
           onChange={(e) => setPackageName(e.target.value)}
         />
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className="error-message">{String(error)}</div>}
       </div>
       {/* todo */}
       {/* <hr />
