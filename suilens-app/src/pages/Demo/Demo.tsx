@@ -7,14 +7,12 @@ import { SuilensClient } from "suilens-sdk";
 import { DEMO_NFT_PACKAGE_ID } from "../../common/constant";
 import { deleteNFT, fetchNFT, recordNFT } from "../../common/api.services";
 import './Demo.scss';
-import { useParams } from "react-router-dom";
 
 const suiClient = new SuiClient({
     url: getFullnodeUrl('testnet'),
 });
 
 const Demo = () => {
-    const { module_name } = useParams<{ module_name: string }>(); 
     const [nfts, setNfts] = useState<Array<{ keyId: string, nftId: string }>>([]);
     const { mutateAsync: signAndExecuteTransactionBlock } = useSignAndExecuteTransaction();
     const [nftDetails, setNftDetails] = useState({
@@ -30,12 +28,10 @@ const Demo = () => {
 
     useEffect(() => {
         const initClient = async () => {
-          if (module_name) {
-            await client.init({ dbName: module_name, tableName: 'status' });
-          }
+            await client.init({ dbName: 'diy_nft', tableName: 'status' });
         };
         initClient();
-    }, [module_name]);
+    }, []);
 
     const toggleFavorite = async (nftId: string) => {
             const txb = new Transaction() as any;
@@ -46,9 +42,11 @@ const Demo = () => {
                 ],
                 target: `${DEMO_NFT_PACKAGE_ID}::diy_nft::favorite_nft`,
             });
-
-            await client.insert({ nftId, action: 'favorite', timestamp: Date.now() });
             await signAndExecuteTransactionBlock({ transaction: txb });
+
+            const client = new SuilensClient();
+            await client.init({ dbName: 'diy_nft', tableName: 'status' });
+            await client.insert({ nftId, action: 'favorite', timestamp: Date.now() });
             setFavorites(prev => ({ ...prev, [nftId]: !prev[nftId] }));
         };
 
@@ -62,8 +60,11 @@ const Demo = () => {
                 ],
                 target: `${DEMO_NFT_PACKAGE_ID}::diy_nft::burn`,
             });
-            await client.insert({ nftId, action: 'burn', timestamp: Date.now() });
             await signAndExecuteTransactionBlock({ transaction: txb });
+
+            const client = new SuilensClient();
+            await client.init({ dbName: 'diy_nft', tableName: 'status' });
+            await client.insert({ nftId, action: 'burn', timestamp: Date.now() });
             await deleteNFT(keyId)
             const filtered_nfts = nfts.filter(nft => nft.nftId !== nftId)
             setNfts([...filtered_nfts]);
