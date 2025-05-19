@@ -14,7 +14,7 @@ const suiClient = new SuiClient({
 });
 
 const Demo = () => {
-    const { packageAddress, module_name } = useParams<{ packageAddress: string; module_name: string }>(); 
+    const { module_name } = useParams<{ module_name: string }>(); 
     const [nfts, setNfts] = useState<Array<{ keyId: string, nftId: string }>>([]);
     const { mutateAsync: signAndExecuteTransactionBlock } = useSignAndExecuteTransaction();
     const [nftDetails, setNftDetails] = useState({
@@ -26,33 +26,18 @@ const Demo = () => {
     const [txStatus, setTxStatus] = useState<string | null>(null);
     const [favorites, setFavorites] = useState<Record<string, boolean>>({});
     const [burned, setBurned] = useState<Record<string, boolean>>({});
-    const [client, setClient] = useState<SuilensClient | null>(null);
-    const [clientReady, setClientReady] = useState(false);
+    const client = new SuilensClient();
 
     useEffect(() => {
-        if (!module_name) return;
-        const suilensClient = new SuilensClient();
-        suilensClient.init({ dbName: module_name, tableName: 'status' })
-          .then(() => {
-            setClient(suilensClient);
-            setClientReady(true);
-          })
-          .catch(err => {
-            console.error("Failed to init SuilensClient:", err);
-            setClientReady(false);
-          });
+        const initClient = async () => {
+          if (module_name) {
+            await client.init({ dbName: module_name, tableName: 'status' });
+          }
+        };
+        initClient();
     }, [module_name]);
 
-    const withClient = async (callback: (client: SuilensClient) => Promise<void>) => {
-        if (!client) {
-            console.warn("Client not initialized");
-            return;
-        }
-        await callback(client);
-    };
-
     const toggleFavorite = async (nftId: string) => {
-        await withClient(async (client) => {
             const txb = new Transaction() as any;
             txb.setGasBudget(100000000);
             txb.moveCall({
@@ -65,31 +50,27 @@ const Demo = () => {
             await client.insert({ nftId, action: 'favorite', timestamp: Date.now() });
             await signAndExecuteTransactionBlock({ transaction: txb });
             setFavorites(prev => ({ ...prev, [nftId]: !prev[nftId] }));
-        });
-    }
+        };
 
     const toggleBurn = async (nftId: string, keyId: string) => {
-        await withClient(async (client) => {
-            try {
-                const txb = new Transaction() as any;
-                txb.setGasBudget(100_000_000);
-                txb.moveCall({
-                    arguments: [
-                        txb.object(nftId),
-                    ],
-                    target: `${DEMO_NFT_PACKAGE_ID}::diy_nft::burn`,
-                });
-
-                await client.insert({ nftId, action: 'burn', timestamp: Date.now() });
-                await signAndExecuteTransactionBlock({ transaction: txb });
-                await deleteNFT(keyId)
-                const filtered_nfts = nfts.filter(nft => nft.nftId !== nftId)
-                setNfts([...filtered_nfts]);
-            } catch (err) {
-                console.error("Error burning NFT:", err);
-            }
-        });
-    }
+        try {
+            const txb = new Transaction() as any;
+            txb.setGasBudget(100_000_000);
+            txb.moveCall({
+                arguments: [
+                    txb.object(nftId),
+                ],
+                target: `${DEMO_NFT_PACKAGE_ID}::diy_nft::burn`,
+            });
+            await client.insert({ nftId, action: 'burn', timestamp: Date.now() });
+            await signAndExecuteTransactionBlock({ transaction: txb });
+            await deleteNFT(keyId)
+            const filtered_nfts = nfts.filter(nft => nft.nftId !== nftId)
+            setNfts([...filtered_nfts]);
+        } catch (err) {
+            console.error("Error burning NFT:", err);
+        }
+    };
 
     const createNFT = async () => {
         try {
@@ -151,7 +132,6 @@ const Demo = () => {
         })();
     }, []);
 
-
     return (
         <main className="demo-container">
             <header className="demo-header">
@@ -166,7 +146,7 @@ const Demo = () => {
                     <input placeholder="Enter image URL" onChange={e => setNftDetails({ ...nftDetails, image_url: e.target.value })} />
                     <input type="number" placeholder="Enter price" onChange={e => setNftDetails({ ...nftDetails, price: Number(e.target.value) })} />
                 </div>
-                <button className="submit-btn" onClick={createNFT} disabled={!clientReady}>Submit</button>
+                <button className="submit-btn" onClick={createNFT}>Submit</button>
                 {txStatus && <p className="status-msg">{txStatus}</p>}
             </section>
 
@@ -182,15 +162,13 @@ const Demo = () => {
                                     className={`icon-btn ${favorites[nftId] ? 'active favorite' : ''}`}
                                     onClick={() => toggleFavorite(nftId)}
                                     title="Favorite"
-                                    disabled={!clientReady}
                                 >
                                     {favorites[nftId] ? '⭐' : '☆'}
                                 </button>
                                 <button
                                     className={`icon-btn ${burned[nftId] ? 'active burn' : ''}`}
                                     onClick={() => toggleBurn(nftId, keyId)}
-                                    title="Burn"
-                                    disabled={!clientReady}
+                                    title="Burn"                    
                                 >
                                     {burned[nftId] ? '🔥' : '🗯️'}
                                 </button>
