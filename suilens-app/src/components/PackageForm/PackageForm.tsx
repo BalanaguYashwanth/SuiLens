@@ -4,6 +4,7 @@ import { createEvents, createPackage } from '../../common/api.services';
 import { PackageFormProps } from '../../common/types';
 import { PAGE_ROUTES } from '../../common/constant';
 import Loader from '../Loader/Loader';
+import { FiCopy } from 'react-icons/fi';
 import './PackageForm.scss';
 
 const PackageForm: React.FC<PackageFormProps> = () => {
@@ -12,6 +13,9 @@ const PackageForm: React.FC<PackageFormProps> = () => {
   const [packageAddress, setPackageAddress] = useState('');
   const [packageName, setPackageName] = useState('');
   const [error, setError] = useState('');
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  const CopyIcon = FiCopy as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 
   const handleSubmit = async () => {
     try {
@@ -27,8 +31,14 @@ const PackageForm: React.FC<PackageFormProps> = () => {
     }
   };
 
+  const copyToClipboard = (text: string, index: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
   if (isLoading) {
-    <Loader />
+    return <Loader />
   }
 
   return (
@@ -55,16 +65,50 @@ const PackageForm: React.FC<PackageFormProps> = () => {
         />
         {error && <div className="error-message">{String(error)}</div>}
       </div>
-      {/* todo */}
-       {/* <hr />
-      <p> Add  npm package details </p>
-      <p className=''> npm i suilens-sdk</p>
-      <code style={{backgroundColor:'lightgray', padding: 10, borderRadius:10}}>
-        {`import { Client } from 'suilens-sdk'
-        const suiClient = new Client()
-        suiClient.init()`}
-        </code> */}
-      
+      <hr />
+
+      <div className="code-section">
+        <p className="section-title">Install SDK</p>
+        {copiedIndex === 0 && (
+          <div className="copied-message-wrapper">
+            <span className="copied-message">Copied!</span>
+          </div>
+        )}
+        <div className="code-box">
+          <code>npm i suilens-sdk</code>
+          <div className="copy-container">
+          <button
+            className="copy-btn"
+            onClick={() => copyToClipboard('npm i suilens-sdk', 0)}
+            title="Copy to clipboard"
+          >
+            <CopyIcon className="copy-icon"  />
+          </button>
+          </div>
+        </div>
+
+        <p className="section-title">Initialize SDK</p>
+        {copiedIndex === 1 && (
+          <div className="copied-message-wrapper">
+            <span className="copied-message">Copied!</span>
+          </div>
+        )}
+        <div className="code-box">
+          <pre>
+            <code>{`import { Client } from 'suilens-sdk'\nconst suiClient = new Client()\nsuiClient.init()`}</code>
+          </pre>
+          <div className="copy-container">
+          <button
+            className="copy-btn"
+            onClick={() => copyToClipboard(`import { Client } from 'suilens-sdk'\nconst suiClient = new Client()\nsuiClient.init()`, 1)}
+              title="Copy to clipboard"
+            >
+            <CopyIcon className="copy-icon" />
+          </button>
+          </div>
+        </div>
+      </div>
+
       <button className="form-submit-button" onClick={handleSubmit}>
         Track
       </button>
