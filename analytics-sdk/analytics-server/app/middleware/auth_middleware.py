@@ -9,7 +9,7 @@ async def set_auth_cookie(response: Response, token: str):
         value=token,
         httponly=True,
         secure=True, 
-        samesite="lax",
+        samesite="none",
         max_age=3600  # 1 hour expiration
     )
 

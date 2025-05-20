@@ -91,7 +91,7 @@
 .icon-btn {
 	font-size: 1.25rem;
 	background: none;
-	border: none;
+	border: 2px solid black;
 	cursor: pointer;
 	transition: transform 0.2s ease;
 }
@@ -100,4 +100,3 @@
 	transform: scale(1.1);
 	color: #9333ea;
 }
-
