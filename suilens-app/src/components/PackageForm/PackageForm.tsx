@@ -56,9 +56,15 @@ const PackageForm: React.FC<PackageFormProps> = () => {
         {error && <div className="error-message">{String(error)}</div>}
       </div>
       {/* todo */}
-      {/* <hr />
-      <p> Add .env and npm package details </p> */}
-      {/* it should sync with existing table */}
+       {/* <hr />
+      <p> Add  npm package details </p>
+      <p className=''> npm i suilens-sdk</p>
+      <code style={{backgroundColor:'lightgray', padding: 10, borderRadius:10}}>
+        {`import { Client } from 'suilens-sdk'
+        const suiClient = new Client()
+        suiClient.init()`}
+        </code> */}
+      
       <button className="form-submit-button" onClick={handleSubmit}>
         Track
       </button>
