@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "main": "server.ts",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "db:setup:dev": "npx prisma migrate dev --name init --schema=./prisma/schema.prisma",
