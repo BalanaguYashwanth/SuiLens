@@ -29,7 +29,7 @@ const getEventsToTrack = ({module, packageId}: {module: string, packageId: strin
       type: `${packageId}::${module}`,
       filter: {
         MoveEventModule: {
-          module,
+          module: module,
           package: packageId,
         },
       },
