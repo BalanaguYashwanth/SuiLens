@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import { dbOperations } from './controllers/dbOperations';
-import { setupListeners } from './controllers/event-indexer';
-import { processQueryPipeline } from './controllers/dbquery';
+import { dbOperations } from './controllers/dbOperations.ts';
+import { setupListeners } from './controllers/event-indexer.ts';
+import { processQueryPipeline } from './controllers/dbquery.ts';
 
 const app = express();
 app.use(cors());

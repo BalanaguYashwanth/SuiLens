@@ -1,5 +1,5 @@
 import axios from "axios";
-import { LLM } from '../constants/index'
+import { LLM } from '../constants/index.ts'
 
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY
 

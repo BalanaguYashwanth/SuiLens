@@ -1,9 +1,9 @@
 import fs from 'fs';
 import DatabaseConstructor, {Database as DatabaseType} from 'better-sqlite3';
-import { callClaudeAI } from '../services/llmService';
-import { chartPrompt } from './prompts/chartPrompt';
-import { convertPrompt } from './prompts/convertPrompt';
-import { classifyPrompt } from './prompts/classifyPrompt';
+import { callClaudeAI } from '../services/llmService.ts';
+import { chartPrompt } from './prompts/chartPrompt.ts';
+import { convertPrompt } from './prompts/convertPrompt.ts';
+import { classifyPrompt } from './prompts/classifyPrompt.ts';
 
 type DB_QUERY = {
     module: string

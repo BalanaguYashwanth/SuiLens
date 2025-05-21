@@ -1,9 +1,9 @@
 import { EventId, SuiClient, SuiEvent, SuiEventFilter } from '@mysten/sui/client';
-import { CONFIG } from '../config';
-import { getClient } from '../sui-utils';
-import { handleHelloWorldEvents } from '../handlers/helloWorld';
-import { dbOperations } from './dbOperations';
-import { DB_OPERATIONS } from '../constant';
+import { CONFIG } from '../config.ts';
+import { getClient } from '../sui-utils.ts';
+import { handleHelloWorldEvents } from '../handlers/helloWorld.ts';
+import { dbOperations } from './dbOperations.ts';
+import { DB_OPERATIONS } from '../constant.ts';
 
 type SuiEventsCursor = EventId | null | undefined;
 

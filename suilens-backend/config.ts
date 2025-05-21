@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import 'dotenv/config.ts';
 
 export const CONFIG = {
   NETWORK: 'testnet',
