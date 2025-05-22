@@ -1,6 +1,6 @@
 import { SuiEvent } from '@mysten/sui/client';
-import { dbOperations } from '../controllers/dbOperations.ts';
-import { DB_OPERATIONS } from '../constant.ts';
+import { dbOperations } from '../controllers/dbOperations';
+import { DB_OPERATIONS } from '../constant';
 
 export const handleHelloWorldEvents = async (events: SuiEvent[], type: string, module: string) => {
   const eventsByType = new Map<string, any[]>();
