@@ -28,7 +28,7 @@ const Demo = () => {
 
     useEffect(() => {
         const initClient = async () => {
-            await client.init({ dbName: 'diy_nft', tableName: 'status' });
+            await client.init({ dbName: 'hello_world', tableName: 'nftstatus' });
         };
         initClient();
     }, []);
@@ -45,7 +45,7 @@ const Demo = () => {
             await signAndExecuteTransactionBlock({ transaction: txb });
 
             const client = new SuilensClient();
-            await client.init({ dbName: 'diy_nft', tableName: 'status' });
+            await client.init({ dbName: 'hello_world', tableName: 'nftstatus' });
             await client.insert({ nftId, action: 'favorite', timestamp: Date.now() });
             setFavorites(prev => ({ ...prev, [nftId]: !prev[nftId] }));
         };
@@ -63,7 +63,7 @@ const Demo = () => {
             await signAndExecuteTransactionBlock({ transaction: txb });
 
             const client = new SuilensClient();
-            await client.init({ dbName: 'diy_nft', tableName: 'status' });
+            await client.init({ dbName: 'hello_world', tableName: 'nftstatus' });
             await client.insert({ nftId, action: 'burn', timestamp: Date.now() });
             await deleteNFT(keyId)
             const filtered_nfts = nfts.filter(nft => nft.nftId !== nftId)
