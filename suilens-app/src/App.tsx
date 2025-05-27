@@ -16,6 +16,7 @@ import '@mysten/dapp-kit/dist/index.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './App.css';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
+import StatusBar from './components/StatusBar/StatusBar';
 
 const queryClient = new QueryClient();
 
@@ -35,12 +36,23 @@ function App() {
           path={HOME} 
           element={
             <PrivateRoute>
-              <Home />
+              <>
+                <StatusBar />
+                <Home />
+              </>
             </PrivateRoute>
           } 
         />
 
-        <Route path="/Login" element={<Login />} />
+        <Route 
+          path="/Login" 
+          element={
+            <>
+            <StatusBar />
+            <Login />
+            </>
+          } 
+        />
         <Route path="/" element={<AuthCallback />} />
         
         <Route element={<Layout />} >
