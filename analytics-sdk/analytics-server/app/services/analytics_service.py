@@ -13,7 +13,6 @@ class AnalyticsService:
         return defaultdict(int)  # This will be used as the default factory function
 
     def process_entry(self, entry):
-        print('==entry--=', entry)
         result = []
         try:
             timestamp_ms = int(entry.get("timestampMs"))
@@ -43,32 +42,33 @@ class AnalyticsService:
         return self.timeline
 
     async def get_function_analytics(self, total_txs):
-        params = [
-            total_txs,
-            {
-                "showInput": True,
-                "showRawInput": False,
-                "showEffects": True,
-                "showEvents": True,
-                "showObjectChanges": False,
-                "showBalanceChanges": False,
-                "showRawEffects": False
-            }
-        ]
-        
-        try:
-            raw_response = await fetch_sui_api('sui_multiGetTransactionBlocks', params)
-            
+        results = []
+        for tx_digest in total_txs:
+            params = [
+                tx_digest,
+                {
+                    "showInput": True,
+                    "showRawInput": False,
+                    "showEffects": True,
+                    "showEvents": True,
+                    "showObjectChanges": False,
+                    "showBalanceChanges": False,
+                    "showRawEffects": False
+                }
+            ]
+            raw_response = await fetch_sui_api('sui_getTransactionBlock', params)
             if 'result' not in raw_response:
-                print("Error: 'result' not found in the API response.")
-                return self.timeline
+                print(f"Error: 'result' not found for tx {tx_digest}")
+                continue  # Skip this one and continue
 
-            results = raw_response['result']
+            results.append(raw_response['result'])
+
+        try:
             if isinstance(results, list):
                 timeline = self.get_daily_function_timeline(results)
                 return timeline
             else:
-                print("Error: Invalid data structure in 'result'.")
+                print("Error: Invalid data structure in results list.")
                 return self.timeline
         except Exception as e:
             print(f"Error fetching function analytics: {e}")
@@ -90,13 +90,11 @@ class AnalyticsService:
 
         try:
             raw_response = await fetch_sui_api("suix_queryTransactionBlocks", params)
-            print('==raw_response--=', raw_response)
             if 'result' not in raw_response:
                 print("Error: 'result' not found in the API response.")
                 return
 
             response = raw_response['result']
-            print('==response--=', response)
             raw_digests_dict = response.get("data", [])
 
             if not raw_digests_dict:
