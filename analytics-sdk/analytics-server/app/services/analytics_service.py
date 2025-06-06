@@ -13,6 +13,7 @@ class AnalyticsService:
         return defaultdict(int)  # This will be used as the default factory function
 
     def process_entry(self, entry):
+        print('==entry--=', entry)
         result = []
         try:
             timestamp_ms = int(entry.get("timestampMs"))
