@@ -89,12 +89,13 @@ class AnalyticsService:
 
         try:
             raw_response = await fetch_sui_api("suix_queryTransactionBlocks", params)
-            
+            print('==raw_response--=', raw_response)
             if 'result' not in raw_response:
                 print("Error: 'result' not found in the API response.")
                 return
 
             response = raw_response['result']
+            print('==response--=', response)
             raw_digests_dict = response.get("data", [])
 
             if not raw_digests_dict:
