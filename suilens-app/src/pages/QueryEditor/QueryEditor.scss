@@ -178,6 +178,8 @@ $notification-bg: #f0f7ff;
         font-family: 'Consolas', 'Monaco', monospace;
         font-size: 13px;
         resize: none;
+        color: #000;
+        background-color: #fff;
 
         &:focus {
           outline: none;

@@ -13,7 +13,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
-import { getDatabaseSchema, getSqlQueryResults } from "../../common/api.services";
+import { getDatabaseSchema, getSqlQueryResults, track_query } from "../../common/api.services";
 import { TableSchema } from "../../common/types";
 import SchemaStructure from "../../components/SchemaStructure/SchemaStructure";
 import Loader from "../../components/Loader/Loader";
@@ -64,6 +64,15 @@ const QueryEditor: React.FC = () => {
   useEffect(() => {
     fetchSchema();
   }, []);
+
+  useEffect(() => {
+    if (schema?.length > 0) {
+    const firstTableName = schema[0]?.name;
+      if (firstTableName) {
+        setQuery(`List all the data from ${firstTableName}`);
+      }
+    }
+  }, [schema]);
 
   useEffect(() => {
     if (sqlData.length > 0 && columns.length > 0) {
@@ -124,6 +133,7 @@ const QueryEditor: React.FC = () => {
     setHistory([...history, newHistoryItem]);
 
     try {
+      await track_query(query);
       const dbResponse = await getSqlQueryResults({
         query: query,
         db: localStorage.getItem('module') as string

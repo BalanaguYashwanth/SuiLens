@@ -1,10 +1,15 @@
 import PackageForm from '../PackageForm/PackageForm';
 import './PackageModal.scss';
 
-const PackageModal = () => {
+const PackageModal = ({ onClose }: { onClose: () => void }) => {
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   return (
-    <div className="modal-overlay">
+    <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-box">
         <div className="modal-content">
           <h2> Add package to track analytics </h2>

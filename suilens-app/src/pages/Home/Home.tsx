@@ -13,7 +13,7 @@ const Home = () => {
       </div>
       <Packages />
       {isModalVisible && (
-        <PackageModal />
+        <PackageModal onClose={() => setIsModalVisible(false)} />
       )}
     </main>
   );

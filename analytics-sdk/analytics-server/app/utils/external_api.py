@@ -1,6 +1,6 @@
 import httpx
 
-SUI_RPC_URL = "https://sui-testnet.public.blastapi.io"
+SUI_RPC_URL = "https://sui-mainnet.public.blastapi.io"
 
 def get_payload(module, params):
     return {

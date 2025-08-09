@@ -7,7 +7,8 @@ mcp = FastMCP(
             name="weather",
             host="0.0.0.0",
             port=8050,
-            timeout=30
+            #TODO: Resolve this timeout issue
+            # timeout=30
         )
 
 if __name__ == "__main__":
