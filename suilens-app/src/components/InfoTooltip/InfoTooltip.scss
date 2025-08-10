@@ -1,0 +1,60 @@
+.info-tooltip-icon {
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease;
+  position: relative;
+
+  &:hover {
+    color: #000000;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  // Size variants
+  &.small svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &.large svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .custom-tooltip {
+    position: fixed;
+    background-color: #333;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    z-index: 99999;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    animation: tooltipFadeIn 0.15s ease-out;
+    line-height: 1.4;
+
+    &::before {
+      content: '';
+      position: absolute;
+      border: 6px solid transparent;
+    }
+  }
+
+  @keyframes tooltipFadeIn {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+} 

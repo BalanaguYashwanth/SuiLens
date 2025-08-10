@@ -17,6 +17,7 @@ import { getDatabaseSchema, getSqlQueryResults, track_query } from "../../common
 import { TableSchema } from "../../common/types";
 import SchemaStructure from "../../components/SchemaStructure/SchemaStructure";
 import Loader from "../../components/Loader/Loader";
+import InfoTooltip from "../../components/InfoTooltip/InfoTooltip";
 import "./QueryEditor.scss";
 
 ChartJS.register(
@@ -69,7 +70,7 @@ const QueryEditor: React.FC = () => {
     if (schema?.length > 0) {
     const firstTableName = schema[0]?.name;
       if (firstTableName) {
-        setQuery(`select * from ${firstTableName} limit 3`);
+        setQuery(`select * from ${firstTableName} limit 10`);
       }
     }
   }, [schema]);
@@ -278,8 +279,13 @@ const QueryEditor: React.FC = () => {
       <div className="left-panel">
         <div className="schema-section">
           <div className="panel-header">
-            <h2>Schema Structure</h2>
-          </div>
+              <h2>Schema Structure</h2>
+              <InfoTooltip
+                message="Data from contract events"
+                position="bottom"
+                size="medium"
+              />
+            </div>
           <SchemaStructure schema={schema} />
         </div>
 
