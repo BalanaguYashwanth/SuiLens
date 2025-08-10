@@ -12,7 +12,7 @@ export const createEvents = async (data: CreateEvents) => {
   };
   
 export const getSqlQueryResults = async (data: GetSqlQueryResults) => {
-  const response = await fetch(`${MCP_CLIENT_API}/chat`, {
+  const response = await fetch(`${BACKEND_API}/query`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),

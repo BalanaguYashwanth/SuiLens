@@ -138,7 +138,7 @@ const QueryEditor: React.FC = () => {
         query: query,
         db: localStorage.getItem('module') as string
       });
-
+      
       if (dbResponse && typeof dbResponse.response === 'string') {
         setErrorMsg(dbResponse.response);
         setSqlData([]);
@@ -150,9 +150,6 @@ const QueryEditor: React.FC = () => {
       setResponseData(dbResponse?.response)
       if (dbResponse?.response?.sql && Array.isArray(dbResponse.response.sql)) {
         const rows = dbResponse.response.sql;
-        const chartType = dbResponse.response.chartType || "";
-        const sqlQuery = dbResponse.response.sqlQuery;
-
         if (rows.length > 0) {
           const cols: Column<RowData>[] = Object.keys(rows[0]).map(key => ({
             Header: key,
@@ -169,7 +166,7 @@ const QueryEditor: React.FC = () => {
           setColumns([]);
           setSqlData([]);
           setChartType(null);
-          setErrorMsg("No data returned from query.");
+          setErrorMsg("No data found. If data exists, It's still loading — try again later.");
           setSqlQuery(null);
         }
       } else {

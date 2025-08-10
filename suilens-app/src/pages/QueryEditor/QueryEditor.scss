@@ -12,7 +12,7 @@ $notification-bg: #f0f7ff;
   color: $text-color;
 
   .left-panel {
-    width: 300px;
+    width: 200px;
     display: flex;
     flex-direction: column;
     border-right: 1px solid $border-color;  
@@ -199,7 +199,7 @@ $notification-bg: #f0f7ff;
         flex-direction: column;
         overflow: hidden;
         padding: 16px;
-
+        width: 300px;
         &:first-child {
           border-right: 1px solid $border-color;
         }
