@@ -1,6 +1,6 @@
-# 📘 SuilensClient Usage Guide
+# 📘 Suilens SDK Client Usage Guide
 
-This document explains how to use the SuilensClient library to interact with your SQLite-backed backend for database operations: `init`, `insert`, `update`, and `delete`.
+This document explains how to use the Suilens SDK Client library to interact with your SQL-backed backend for database operations: `init`, `insert`, `update`, and `delete`.
 
 ## 🔧 Initialization
 

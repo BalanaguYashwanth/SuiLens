@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import { ValidationError } from '../errors/ValidationError.js';
 dotenv.config();
 
-const { SUILENS_API_URL = 'http://localhost:8001' } = process.env;
+const { SUILENS_API_URL = 'https://lensapi.formpilot.org' } = process.env;
 const api = axios.create({
   baseURL: SUILENS_API_URL
 });

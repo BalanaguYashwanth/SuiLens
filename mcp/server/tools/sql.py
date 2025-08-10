@@ -8,14 +8,17 @@ async def read_query(db: str,query: str) -> str:
         db_dir = project_root / "db"
         db_dir.mkdir(exist_ok=True, parents=True)  # ensure db folder exists
         db_path = db_dir / f"{db}.sqlite"
+        print('----server--db_path--',db_path)
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         results = conn.execute(query).fetchall()
-
+        print('-----server--results---', results)
         if not results:
             return []
 
-        return [dict(row) for row in results] 
+        data = [dict(row) for row in results] 
+        print('--server---data---', data)
+        return data
 
     except Exception as e:
         return f"Error executing query: {str(e)}"
