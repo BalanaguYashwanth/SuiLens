@@ -27,14 +27,15 @@ const PackageForm: React.FC<PackageFormProps> = () => {
     setError('');
     
     try {
-      const packageResponse = await createPackage({packageAddress, packageName});
+      //TODO: Resolve this issue, not creating package 1st login with new login
+      // const packageResponse = await createPackage({packageAddress, packageName});
       
-      if (packageResponse.success) {
+      if (true) {
         localStorage.setItem('module',packageName);
         await createEvents({packageId: packageAddress, module: packageName});
         naviagate(`${PAGE_ROUTES.DASHBOARD}/${packageAddress}`);
       } else {
-        setError(packageResponse.message || 'Failed to create package');
+        // setError(packageResponse.message || 'Failed to create package');
       }
     } catch (error: any) {
       console.log('Error occured in adding package', error)
@@ -78,6 +79,7 @@ const PackageForm: React.FC<PackageFormProps> = () => {
           value={packageName}
           onChange={(e) => setPackageName(e.target.value)}
         />
+        <p className='font-small'>Note: Package name must same contract <b>module name</b>.</p>
         {error && <div className="error-message">{String(error)}</div>}
       </div>
       {/* <hr /> */}

@@ -69,7 +69,7 @@ const QueryEditor: React.FC = () => {
     if (schema?.length > 0) {
     const firstTableName = schema[0]?.name;
       if (firstTableName) {
-        setQuery(`select * from ${firstTableName} limit 5`);
+        setQuery(`select * from ${firstTableName} limit 3`);
       }
     }
   }, [schema]);
