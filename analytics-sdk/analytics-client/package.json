@@ -1,6 +1,6 @@
 {
   "name": "suilens-sdk",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Client library to interact with analytics-server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

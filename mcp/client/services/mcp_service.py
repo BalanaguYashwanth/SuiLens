@@ -81,6 +81,7 @@ class MCPClient:
                 """
 
     async def process_query(self, query: str, db_name) -> str:
+        print('--query--', query, '---db-name--', db_name)
         if not self.session:
             raise RuntimeError("Session is not initialized. Call initialize() first.")
         tools, resources = self.get_tools_resources(
@@ -89,9 +90,12 @@ class MCPClient:
             )
     
         schema_response = await self.session.read_resource(f"schema://db//{db_name}")
+        print('---schema_response--', schema_response)
         schema_resource = schema_response.contents[0].text
+        print('---schema_resource--', schema_resource)
         sql_prompt = self.get_sql_prompt(query, schema_resource, db_name, resources)
         response = await self.get_latest_llm_response(tools, prompt=sql_prompt)
+        print('---response--', response)
         if not response:
             return None
         
@@ -118,9 +122,11 @@ class MCPClient:
                             """
 
             response = await self.get_latest_llm_response(tools, prompt=tools_prompt)
+            print('--response--111---', response)
             if not response:
                 return None
             final_response, latest_index = await multi_chaining(latest_index, final_response, contents=response.content, session=self.session)
+            print('--final_response--',final_response)
         return final_response
 
     async def cleanup(self):

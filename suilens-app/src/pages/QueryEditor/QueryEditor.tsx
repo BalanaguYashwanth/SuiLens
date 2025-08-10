@@ -303,7 +303,7 @@ const QueryEditor: React.FC = () => {
           </div>
           <textarea
             className="query-input"
-            placeholder="Enter your SQL query here..."
+            placeholder="Enter your query using AI SQL query here..."
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
