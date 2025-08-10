@@ -34,7 +34,7 @@ app.get('/status', (req, res)=>{
 //     });
 
 app.post('/query', async (req, res)=>{
-  const {text, module} = req.body;
+  const {query: text, db: module} = req.body;
 
   if (!text || !module) {
     return res.status(400).json({ error: 'Missing query or module in request body' });

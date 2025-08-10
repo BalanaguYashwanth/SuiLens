@@ -6,6 +6,7 @@ import { dbOperations } from './dbOperations';
 import { DB_OPERATIONS } from '../constant';
 
 type SuiEventsCursor = EventId | null | undefined;
+const MAX_EVENTS = 5000;
 
 type EventExecutionResult = {
   cursor: SuiEventsCursor;
@@ -70,12 +71,17 @@ const executeEventJob = async (
   };
 };
 
-const runEventJob = async (client: SuiClient, tracker: EventTracker, cursor: SuiEventsCursor, module: string) => {
+const runEventJob = async (client: SuiClient, tracker: EventTracker, cursor: SuiEventsCursor, module: string, counter: number) => {
   const result = await executeEventJob(client, tracker, cursor, module);
+
+  counter += 1;
+  if (counter === MAX_EVENTS) {
+    return;  
+  }
 
   setTimeout(
     () => {
-      runEventJob(client, tracker, result.cursor, module);
+      runEventJob(client, tracker, result.cursor, module, counter);
     },
     result.hasNextPage ? 0 : CONFIG.POLLING_INTERVAL_MS,
   );
@@ -100,7 +106,8 @@ const saveLatestCursor = async (tracker: EventTracker, cursor: EventId, module: 
 
 export const setupListeners = async ({module, packageId}: EventSetupListner) => {
   const EVENTS_TO_TRACK = getEventsToTrack({module, packageId})
+  let counter = 0;
   for (const event of EVENTS_TO_TRACK) {
-    runEventJob(getClient(CONFIG.NETWORK), event, await getLatestCursor(event, module), module);
+    runEventJob(getClient(CONFIG.NETWORK), event, await getLatestCursor(event, module), module, counter);
   }
 };

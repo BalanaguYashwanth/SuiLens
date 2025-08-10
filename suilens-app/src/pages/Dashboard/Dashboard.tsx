@@ -14,7 +14,7 @@ import {useParams } from "react-router-dom";
 import { getColor, transformPackageData } from "../../common/helpers";
 import FunctionGraph from "../../components/FunctionGraph/FunctionGraph";
 import { GOOGLE_COLRS } from "../../common/color";
-import Loader from "../../components/Loader/Loader";
+import ProgressLineLoader from "../../components/ProgressLineLoader/ProgressLineLoader";
 import "./Dashboard.scss";
 
 const Dashboard = () => {
@@ -25,25 +25,25 @@ const Dashboard = () => {
     // #TODO - timeline should use in graph
     const [originalTimeline, setOriginalTimeline] = useState<TimelineData>({});
 
-    const fetchAnalytics = async (packageAddress: string) => {
+     const fetchAnalytics = async (packageAddress: string) => {
+        setIsLoading(true);
+
         try {
-            if (packageAddress) {
-                setIsLoading(true);
-                const response = await getPackageAnalytics(packageAddress);
-                const timeline = response?.analytics;
-                if (timeline) {
-                    const data = transformPackageData(timeline);
-                    setAnalytics(data);
-                    setFunctionNames(Object.keys(timeline));
-                    setOriginalTimeline(timeline);
-                }
-            } else {
-                setIsLoading(false);
-                console.error('Couldnt get the package address')
+            if (!packageAddress) {
+                throw new Error("Package address is missing");
             }
-            setIsLoading(false)
+
+            const response = await getPackageAnalytics(packageAddress);
+            const timeline = response?.analytics;
+
+            if (timeline) {
+                const data = transformPackageData(timeline);
+                setAnalytics(data);
+                setFunctionNames(Object.keys(timeline));
+                setOriginalTimeline(timeline);
+            }
         } catch (err) {
-            console.log('Error occurred in fetching analytics', err)
+            console.log("Error occurred in fetching analytics", err);
         } finally {
             setIsLoading(false)
         }
@@ -61,7 +61,7 @@ const Dashboard = () => {
                 <h2> Graph</h2>
                 {isLoading ? (
                     <div className="chart-loader">
-                        <Loader />
+                        <ProgressLineLoader />
                     </div>
                 ) : (
                     <ResponsiveContainer width="100%" height={400}>

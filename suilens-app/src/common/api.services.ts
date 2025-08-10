@@ -12,7 +12,7 @@ export const createEvents = async (data: CreateEvents) => {
   };
   
 export const getSqlQueryResults = async (data: GetSqlQueryResults) => {
-  const response = await fetch(`${MCP_CLIENT_API}/chat`, {
+  const response = await fetch(`${BACKEND_API}/query`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -132,3 +132,22 @@ export const deleteNFT = async(keyName: string) => {
 }
 
 export type TimelineData = Record<string, Record<string, number>>;
+
+export const track_query = async (query: any) => {
+    const timestamp = new Date().toLocaleString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'UTC'
+        }).replace(/[, ]/g, '-').replace(/:/g, '-');
+
+    await fetch(`${FIREBASE_DB_API}/track-suilens/${timestamp}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+    })
+}

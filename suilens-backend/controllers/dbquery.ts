@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from "path";
 import DatabaseConstructor, {Database as DatabaseType} from 'better-sqlite3';
 import { callClaudeAI } from '../services/llmService';
 import { chartPrompt } from './prompts/chartPrompt';
@@ -10,13 +11,19 @@ type DB_QUERY = {
     text: string
 }
 
-export const openDatabaseConnection = (module: string): DatabaseType => {
-    const dbPath = `./db/${module}.sqlite`; 
-    
-    if (!fs.existsSync(dbPath)) {
-        throw new Error('DB file does not exist');
+export const openDatabaseConnection = (module: string) => {
+    const projectRoot = path.resolve(__dirname, "../.."); // adjust depth like Python's parents[2]
+    const dbDir = path.join(projectRoot, "db");
+    if (!fs.existsSync(dbDir)) {
+        fs.mkdirSync(dbDir, { recursive: true });
     }
-    
+
+    const dbPath = path.join(dbDir, `${module}.sqlite`);
+
+    if (!fs.existsSync(dbPath)) {
+        return null;
+    }
+
     return new DatabaseConstructor(dbPath);
 };
 
@@ -30,9 +37,11 @@ export const getAllTablesWithSchema = (db: DatabaseType): { name: string; schema
       .map((row: any) => ({ name: row.name, schema: row.sql }));
   };  
 
-export const executeSQLQuery = (db: DatabaseType, query: string) => {
-    return db.prepare(query).all();
-}
+export const executeSQLQuery = <T extends Record<string, any>>(db: DatabaseType, query: string): T[] => {
+    const stmt = db.prepare(query);
+    const rows = stmt.all() as T[];
+    return rows.map(row => ({ ...row }));
+};
 
 export const classifyUserInput = async (input: string) => {
     const prompt = classifyPrompt(input);
@@ -53,31 +62,16 @@ export const determineChartType = async (sampleData: any[], schema: string[]) =>
   return chartType;
 };
 
-export const processQueryPipeline = async ({ text, module }: DB_QUERY) => {
-    let query = text;
-
-    // Step 1: Open the database connection
+export const processQueryPipeline = async ({ text, module }:{text: string, module: string}) => {
     const db = openDatabaseConnection(module);
-
-    // Step 2: Classify the type of query
-    const queryType = await classifyUserInput(text);
-
-    if(queryType == 'instruction'){
-        query = await convertInstructionToSQL(db, text)
-        if(query == 'None'){
-            return {
-                message: `The table(s) do not exist in the database. Please select only from the following available tables:`,
-                sqlQuery: null,
-            };
-        }
+    if (!db) {
+        return { rows: [], sqlQuery: text };
     }
 
-    const rows = executeSQLQuery(db, query);
- 
-    // Step 7: Get chart type from sample data
-    const schema = Object.keys(rows[0] || {});
-    const chartType = await determineChartType(rows.slice(0, 3), schema);
-  
-    return { rows, chartType, sqlQuery: query };
-  };
-  
+    try {
+        const rows = executeSQLQuery(db, text);
+        return {response:{ sql: rows, sqlQuery: text }};
+    } finally {
+        db.close(); // make sure to close like Python
+    }
+};

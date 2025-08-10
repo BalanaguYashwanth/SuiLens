@@ -4,7 +4,7 @@ import { createEvents, createPackage } from '../../common/api.services';
 import { PackageFormProps } from '../../common/types';
 import { PAGE_ROUTES } from '../../common/constant';
 import Loader from '../Loader/Loader';
-import { FiCopy } from 'react-icons/fi';
+// import { FiCopy } from 'react-icons/fi';
 import './PackageForm.scss';
 
 const PackageForm: React.FC<PackageFormProps> = () => {
@@ -13,29 +13,45 @@ const PackageForm: React.FC<PackageFormProps> = () => {
   const [packageAddress, setPackageAddress] = useState('');
   const [packageName, setPackageName] = useState('');
   const [error, setError] = useState('');
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  // const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
-  const CopyIcon = FiCopy as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
+  // const CopyIcon = FiCopy as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 
   const handleSubmit = async () => {
+    if (!packageAddress.trim() || !packageName.trim()) {
+      setError('Package Address and Package Name cannot be empty.');
+      return;
+    }
+    
+    setIsLoading(true);
+    setError('');
+    
     try {
-      setIsLoading(true);
-      localStorage.setItem('module',packageName);
-      await createEvents({packageId: packageAddress, module: packageName})
-      await createPackage({packageAddress, packageName});
-      setIsLoading(false)
-      naviagate(`${PAGE_ROUTES.DASHBOARD}/${packageAddress}`)
+      //TODO: Resolve this issue, not creating package 1st login with new login
+      // const packageResponse = await createPackage({packageAddress, packageName});
+      
+      if (true) {
+        localStorage.setItem('module',packageName);
+        await createEvents({packageId: packageAddress, module: packageName});
+        naviagate(`${PAGE_ROUTES.DASHBOARD}/${packageAddress}`);
+      } else {
+        // setError(packageResponse.message || 'Failed to create package');
+      }
     } catch (error: any) {
       console.log('Error occured in adding package', error)
+      setError('A network error occurred. Please try again.');
       setError(error)
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const copyToClipboard = (text: string, index: number) => {
-    navigator.clipboard.writeText(text);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
-  };
+  // TODO: Revert this comment whenever we enable SDK 
+  // const copyToClipboard = (text: string, index: number) => {
+  //   navigator.clipboard.writeText(text);
+  //   setCopiedIndex(index);
+  //   setTimeout(() => setCopiedIndex(null), 2000);
+  // };
 
   if (isLoading) {
     return <Loader />
@@ -63,11 +79,12 @@ const PackageForm: React.FC<PackageFormProps> = () => {
           value={packageName}
           onChange={(e) => setPackageName(e.target.value)}
         />
+        <p className='font-small'>Note: Package name must same contract <b>module name</b>.</p>
         {error && <div className="error-message">{String(error)}</div>}
       </div>
-      <hr />
+      {/* <hr /> */}
 
-      <div className="code-section">
+      {/* <div className="code-section">
         <p className="section-title">Install SDK</p>
         {copiedIndex === 0 && (
           <div className="copied-message-wrapper">
@@ -107,7 +124,7 @@ const PackageForm: React.FC<PackageFormProps> = () => {
           </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <button className="form-submit-button" onClick={handleSubmit}>
         Track

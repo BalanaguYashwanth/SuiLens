@@ -16,7 +16,6 @@ import '@mysten/dapp-kit/dist/index.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './App.css';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
-import StatusBar from './components/StatusBar/StatusBar';
 
 const queryClient = new QueryClient();
 
@@ -37,7 +36,6 @@ function App() {
           element={
             <PrivateRoute>
               <>
-                <StatusBar />
                 <Home />
               </>
             </PrivateRoute>
@@ -48,7 +46,6 @@ function App() {
           path="/Login" 
           element={
             <>
-            <StatusBar />
             <Login />
             </>
           } 

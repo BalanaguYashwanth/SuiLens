@@ -13,10 +13,11 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
-import { getDatabaseSchema, getSqlQueryResults } from "../../common/api.services";
+import { getDatabaseSchema, getSqlQueryResults, track_query } from "../../common/api.services";
 import { TableSchema } from "../../common/types";
 import SchemaStructure from "../../components/SchemaStructure/SchemaStructure";
 import Loader from "../../components/Loader/Loader";
+import InfoTooltip from "../../components/InfoTooltip/InfoTooltip";
 import "./QueryEditor.scss";
 
 ChartJS.register(
@@ -64,6 +65,15 @@ const QueryEditor: React.FC = () => {
   useEffect(() => {
     fetchSchema();
   }, []);
+
+  useEffect(() => {
+    if (schema?.length > 0) {
+    const firstTableName = schema[0]?.name;
+      if (firstTableName) {
+        setQuery(`select * from ${firstTableName} limit 10`);
+      }
+    }
+  }, [schema]);
 
   useEffect(() => {
     if (sqlData.length > 0 && columns.length > 0) {
@@ -124,11 +134,12 @@ const QueryEditor: React.FC = () => {
     setHistory([...history, newHistoryItem]);
 
     try {
+      await track_query(query);
       const dbResponse = await getSqlQueryResults({
         query: query,
         db: localStorage.getItem('module') as string
       });
-
+      
       if (dbResponse && typeof dbResponse.response === 'string') {
         setErrorMsg(dbResponse.response);
         setSqlData([]);
@@ -140,9 +151,6 @@ const QueryEditor: React.FC = () => {
       setResponseData(dbResponse?.response)
       if (dbResponse?.response?.sql && Array.isArray(dbResponse.response.sql)) {
         const rows = dbResponse.response.sql;
-        const chartType = dbResponse.response.chartType || "";
-        const sqlQuery = dbResponse.response.sqlQuery;
-
         if (rows.length > 0) {
           const cols: Column<RowData>[] = Object.keys(rows[0]).map(key => ({
             Header: key,
@@ -159,7 +167,7 @@ const QueryEditor: React.FC = () => {
           setColumns([]);
           setSqlData([]);
           setChartType(null);
-          setErrorMsg("No data returned from query.");
+          setErrorMsg("No data found. If data exists, It's still loading — try again later.");
           setSqlQuery(null);
         }
       } else {
@@ -271,8 +279,13 @@ const QueryEditor: React.FC = () => {
       <div className="left-panel">
         <div className="schema-section">
           <div className="panel-header">
-            <h2>Schema Structure</h2>
-          </div>
+              <h2>Schema Structure</h2>
+              <InfoTooltip
+                message="Data from contract events"
+                position="bottom"
+                size="medium"
+              />
+            </div>
           <SchemaStructure schema={schema} />
         </div>
 

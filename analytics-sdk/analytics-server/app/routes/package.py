@@ -25,7 +25,15 @@ async def create_package(request: Request, user_data: Dict = Depends(get_user_fr
             }
         }
     except Exception as e:
-        return {"success": False, "message": str(e)}
+        error_message = getattr(e, "message", None)
+
+        if not error_message and hasattr(e, "args") and e.args:
+            error_message = e.args[0]
+    
+        if not error_message:
+            error_message = str(e)
+
+        return {"success": False, "message": error_message}
 
 @package_router.get("/get")
 async def get_packages_by_user(user_data: Dict = Depends(get_user_from_token)):

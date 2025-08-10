@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import Database from 'better-sqlite3';
+import { serializeValue } from '../utils/utils';
 
 type DB_OPERATIONS = {
   dbName: string;
@@ -33,7 +34,7 @@ export const dbOperations = ({ dbName, operation, data, tableName }: DB_OPERATIO
 
     const placeholders = Object.keys(data).map(() => '?').join(', ');
     const keys = Object.keys(data).join(', ');
-    const values = Object.values(data);
+    const values = Object.values(data).map(serializeValue);
 
     const upsertQuery = `
       INSERT OR REPLACE INTO ${tableName} (${keys})
@@ -64,7 +65,7 @@ export const dbOperations = ({ dbName, operation, data, tableName }: DB_OPERATIO
 
     const insertMany = db.transaction((rows: any[]) => {
       for (const row of rows) {
-        insertStmt.run(Object.values(row));
+        insertStmt.run(Object.values(row).map(serializeValue));
       }
     });
 

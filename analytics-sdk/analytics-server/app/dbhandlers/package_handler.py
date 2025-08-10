@@ -15,6 +15,15 @@ class PackageHandler:
             user = db_session.query(UserModel).filter(UserModel.email == email).first()
             if not user:
                 raise ApiError(404, "User not found")
+            
+            existing_package = db_session.query(PackageModel).filter(
+                PackageModel.package_id == package_id,
+                PackageModel.module_name == module_name,
+                PackageModel.user_id == user.id
+            ).first()
+
+            if existing_package:
+                raise ApiError(409, "Package already exists with that packageId and packageName")
 
             new_package = PackageModel(
                 package_id=package_id,
@@ -25,6 +34,9 @@ class PackageHandler:
             db_session.commit()
             db_session.refresh(new_package)
             return new_package
+        except ApiError as e:
+            db_session.rollback()
+            raise e
         except Exception as e:
             db_session.rollback()
             raise ApiError(500, f"Failed to create package: {str(e)}")

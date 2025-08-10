@@ -3,11 +3,14 @@ from collections import defaultdict
 from multiprocessing import Pool, cpu_count
 from app.utils.external_api import fetch_sui_api
 
+MAX_TRANSACTION_INDEX_PAGE = 3
+
 class AnalyticsService:
     def __init__(self):
         self.package_address = None
         self.batch_size = 0
         self.timeline = defaultdict(self.default_timeline)  # Use a class method for default value
+        self.total_items_processed = 0
 
     def default_timeline(self):
         return defaultdict(int)  # This will be used as the default factory function
@@ -106,9 +109,10 @@ class AnalyticsService:
             # Update the global timeline with the newly fetched digests
             await self.get_function_analytics(digests)
 
-            # If there is a next page, continue fetching
-            if response.get('hasNextPage') and response.get('nextCursor'):
-                await self.get_transactions(index + 1, response['nextCursor'])
+            if index <= MAX_TRANSACTION_INDEX_PAGE:
+                # If there is a next page, continue fetching
+                if response.get('hasNextPage') and response.get('nextCursor'):
+                    await self.get_transactions(index + 1, response['nextCursor'])
         except Exception as e:
             print(f"Error fetching transactions: {e}")
 
